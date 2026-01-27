@@ -12,13 +12,19 @@
       "supportsTablet": true
     },
     "android": {
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.bayurizkya.milestonemobile"
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9d5d588e-54ee-4f68-a464-ebaa28677f01"
+      }
+    }
   }
 }
