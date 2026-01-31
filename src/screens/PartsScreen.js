@@ -98,7 +98,14 @@ export default function PartsScreen() {
               )}
               {item.installedAt && (
                 <Paragraph>
-                  Tanggal: {format(item.installedAt.toDate(), 'dd MMM yyyy', { locale: id })}
+                  Tanggal: {(() => {
+                    try {
+                      const date = item.installedAt?.toDate ? item.installedAt.toDate() : new Date(item.installedAt);
+                      return format(date, 'dd MMM yyyy', { locale: id });
+                    } catch (e) {
+                      return 'Tanggal tidak valid';
+                    }
+                  })()}
                 </Paragraph>
               )}
               {item.replacementKm && (

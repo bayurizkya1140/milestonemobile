@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 // Screens
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -97,41 +98,43 @@ export default function App() {
   const navigationRef = React.useRef();
 
   return (
-    <PaperProvider>
-      <NavigationContainer ref={navigationRef}>
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-              if (route.name === 'Dashboard') {
-                iconName = focused ? 'home' : 'home-outline';
-              } else if (route.name === 'Vehicles') {
-                iconName = focused ? 'car' : 'car-outline';
-              } else if (route.name === 'Services') {
-                iconName = focused ? 'construct' : 'construct-outline';
-              } else if (route.name === 'Parts') {
-                iconName = focused ? 'settings' : 'settings-outline';
-              } else if (route.name === 'Taxes') {
-                iconName = focused ? 'document-text' : 'document-text-outline';
-              }
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: '#2196F3',
-            tabBarInactiveTintColor: 'gray',
-            headerShown: false,
-          })}
-        >
-          <Tab.Screen name="Dashboard" component={DashboardScreen} />
-          <Tab.Screen 
-            name="Vehicles" 
-            component={VehiclesStack} 
-            options={{ unmountOnBlur: true }}
-          />
-          <Tab.Screen name="Services" component={ServicesStack} />
-          <Tab.Screen name="Parts" component={PartsStack} />
-          <Tab.Screen name="Taxes" component={TaxesStack} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <ErrorBoundary>
+      <PaperProvider>
+        <NavigationContainer ref={navigationRef}>
+          <Tab.Navigator
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+                if (route.name === 'Dashboard') {
+                  iconName = focused ? 'home' : 'home-outline';
+                } else if (route.name === 'Vehicles') {
+                  iconName = focused ? 'car' : 'car-outline';
+                } else if (route.name === 'Services') {
+                  iconName = focused ? 'construct' : 'construct-outline';
+                } else if (route.name === 'Parts') {
+                  iconName = focused ? 'settings' : 'settings-outline';
+                } else if (route.name === 'Taxes') {
+                  iconName = focused ? 'document-text' : 'document-text-outline';
+                }
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+              tabBarActiveTintColor: '#2196F3',
+              tabBarInactiveTintColor: 'gray',
+              headerShown: false,
+            })}
+          >
+            <Tab.Screen name="Dashboard" component={DashboardScreen} />
+            <Tab.Screen 
+              name="Vehicles" 
+              component={VehiclesStack} 
+              options={{ unmountOnBlur: true }}
+            />
+            <Tab.Screen name="Services" component={ServicesStack} />
+            <Tab.Screen name="Parts" component={PartsStack} />
+            <Tab.Screen name="Taxes" component={TaxesStack} />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </ErrorBoundary>
   );
 }

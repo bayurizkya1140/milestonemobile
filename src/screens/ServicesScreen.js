@@ -110,7 +110,14 @@ export default function ServicesScreen() {
               <Paragraph>{getVehicleName(item.vehicleId)}</Paragraph>
               {item.serviceDate && (
                 <Paragraph>
-                  Tanggal: {format(item.serviceDate.toDate(), 'dd MMM yyyy', { locale: id })}
+                  Tanggal: {(() => {
+                    try {
+                      const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
+                      return format(date, 'dd MMM yyyy', { locale: id });
+                    } catch (e) {
+                      return 'Tanggal tidak valid';
+                    }
+                  })()}
                 </Paragraph>
               )}
               {item.nextServiceKm && (

@@ -29,15 +29,40 @@ export const addVehicle = async (vehicleData) => {
 
 export const getVehicles = async () => {
   try {
-    const q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'));
+    let q;
+    try {
+      q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'));
+    } catch (indexError) {
+      console.warn('Index not found for vehicles, using query without orderBy:', indexError);
+      q = query(collection(db, 'vehicles'));
+    }
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
+    let vehicles = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    
+    // Sort di client side jika orderBy gagal
+    vehicles.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dateB - dateA; // Descending order
+    });
+    
+    return vehicles;
   } catch (error) {
     console.error('Error getting vehicles:', error);
-    throw error;
+    // Fallback: coba ambil semua tanpa filter/order
+    try {
+      const querySnapshot = await getDocs(collection(db, 'vehicles'));
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (fallbackError) {
+      console.error('Fallback query also failed:', fallbackError);
+      return []; // Return empty array instead of throwing
+    }
   }
 };
 
@@ -135,7 +160,7 @@ export const getServices = async (vehicleId = null) => {
       }));
     } catch (fallbackError) {
       console.error('Fallback query also failed:', fallbackError);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 };
@@ -181,22 +206,54 @@ export const getParts = async (vehicleId = null) => {
   try {
     let q;
     if (vehicleId) {
-      q = query(
-        collection(db, 'parts'),
-        where('vehicleId', '==', vehicleId),
-        orderBy('installedAt', 'desc')
-      );
+      try {
+        q = query(
+          collection(db, 'parts'),
+          where('vehicleId', '==', vehicleId),
+          orderBy('installedAt', 'desc')
+        );
+      } catch (indexError) {
+        console.warn('Index not found for parts, using query without orderBy:', indexError);
+        q = query(
+          collection(db, 'parts'),
+          where('vehicleId', '==', vehicleId)
+        );
+      }
     } else {
-      q = query(collection(db, 'parts'), orderBy('installedAt', 'desc'));
+      try {
+        q = query(collection(db, 'parts'), orderBy('installedAt', 'desc'));
+      } catch (indexError) {
+        console.warn('Index not found for parts, using query without orderBy:', indexError);
+        q = query(collection(db, 'parts'));
+      }
     }
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
+    let parts = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    
+    // Sort di client side jika orderBy gagal
+    parts.sort((a, b) => {
+      const dateA = a.installedAt?.toDate ? a.installedAt.toDate() : new Date(0);
+      const dateB = b.installedAt?.toDate ? b.installedAt.toDate() : new Date(0);
+      return dateB - dateA; // Descending order
+    });
+    
+    return parts;
   } catch (error) {
     console.error('Error getting parts:', error);
-    throw error;
+    // Fallback: coba ambil semua tanpa filter/order
+    try {
+      const querySnapshot = await getDocs(collection(db, 'parts'));
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (fallbackError) {
+      console.error('Fallback query also failed:', fallbackError);
+      return []; // Return empty array instead of throwing
+    }
   }
 };
 
@@ -241,22 +298,54 @@ export const getTaxes = async (vehicleId = null) => {
   try {
     let q;
     if (vehicleId) {
-      q = query(
-        collection(db, 'taxes'),
-        where('vehicleId', '==', vehicleId),
-        orderBy('dueDate', 'asc')
-      );
+      try {
+        q = query(
+          collection(db, 'taxes'),
+          where('vehicleId', '==', vehicleId),
+          orderBy('dueDate', 'asc')
+        );
+      } catch (indexError) {
+        console.warn('Index not found for taxes, using query without orderBy:', indexError);
+        q = query(
+          collection(db, 'taxes'),
+          where('vehicleId', '==', vehicleId)
+        );
+      }
     } else {
-      q = query(collection(db, 'taxes'), orderBy('dueDate', 'asc'));
+      try {
+        q = query(collection(db, 'taxes'), orderBy('dueDate', 'asc'));
+      } catch (indexError) {
+        console.warn('Index not found for taxes, using query without orderBy:', indexError);
+        q = query(collection(db, 'taxes'));
+      }
     }
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
+    let taxes = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    
+    // Sort di client side jika orderBy gagal
+    taxes.sort((a, b) => {
+      const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(0);
+      const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(0);
+      return dateA - dateB; // Ascending order
+    });
+    
+    return taxes;
   } catch (error) {
     console.error('Error getting taxes:', error);
-    throw error;
+    // Fallback: coba ambil semua tanpa filter/order
+    try {
+      const querySnapshot = await getDocs(collection(db, 'taxes'));
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (fallbackError) {
+      console.error('Fallback query also failed:', fallbackError);
+      return []; // Return empty array instead of throwing
+    }
   }
 };
 

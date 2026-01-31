@@ -79,15 +79,24 @@ export default function TaxesScreen() {
 
   const isOverdue = (dueDate) => {
     if (!dueDate) return false;
-    return dueDate.toDate() < new Date();
+    try {
+      const date = dueDate?.toDate ? dueDate.toDate() : new Date(dueDate);
+      return date < new Date();
+    } catch (e) {
+      return false;
+    }
   };
 
   const isUpcoming = (dueDate) => {
     if (!dueDate) return false;
-    const due = dueDate.toDate();
-    const now = new Date();
-    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return due >= now && due <= sevenDaysFromNow;
+    try {
+      const due = dueDate?.toDate ? dueDate.toDate() : new Date(dueDate);
+      const now = new Date();
+      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      return due >= now && due <= sevenDaysFromNow;
+    } catch (e) {
+      return false;
+    }
   };
 
   const onRefresh = () => {
@@ -108,7 +117,14 @@ export default function TaxesScreen() {
               <Paragraph>{getVehicleName(item.vehicleId)}</Paragraph>
               {item.dueDate && (
                 <Paragraph>
-                  Jatuh Tempo: {format(item.dueDate.toDate(), 'dd MMM yyyy', { locale: id })}
+                  Jatuh Tempo: {(() => {
+                    try {
+                      const date = item.dueDate?.toDate ? item.dueDate.toDate() : new Date(item.dueDate);
+                      return format(date, 'dd MMM yyyy', { locale: id });
+                    } catch (e) {
+                      return 'Tanggal tidak valid';
+                    }
+                  })()}
                 </Paragraph>
               )}
               {item.amount && (

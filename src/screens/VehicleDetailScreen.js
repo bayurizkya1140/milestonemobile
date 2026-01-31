@@ -175,7 +175,7 @@ export default function VehicleDetailScreen() {
                   )}
                   {service.nextServiceDate && (
                     <Paragraph style={styles.nextService}>
-                      Servis berikutnya: {format(service.nextServiceDate.toDate(), 'dd MMM yyyy', { locale: id })}
+                      Servis berikutnya: {getFormattedDate(service.nextServiceDate) || 'Tanggal tidak ditentukan'}
                     </Paragraph>
                   )}
                 </View>
@@ -254,13 +254,23 @@ export default function VehicleDetailScreen() {
           {taxes.length === 0 ? (
             <Paragraph>Belum ada data pajak</Paragraph>
           ) : (
-            taxes.slice(0, 3).map((tax) => (
+            taxes.slice(0, 3).map((tax) => {
+              // Safe date parsing for tax
+              const getTaxFormattedDate = (dateField) => {
+                try {
+                  if (!dateField) return null;
+                  const date = dateField?.toDate ? dateField.toDate() : new Date(dateField);
+                  return format(date, 'dd MMM yyyy', { locale: id });
+                } catch (e) {
+                  return null;
+                }
+              };
+              
+              return (
               <View key={tax.id} style={styles.item}>
                 <Paragraph style={styles.itemTitle}>{tax.type}</Paragraph>
                 <Paragraph>
-                  Jatuh Tempo: {tax.dueDate 
-                    ? format(tax.dueDate.toDate(), 'dd MMM yyyy', { locale: id })
-                    : 'Tanggal tidak ditentukan'}
+                  Jatuh Tempo: {getTaxFormattedDate(tax.dueDate) || 'Tanggal tidak ditentukan'}
                 </Paragraph>
                 {tax.isPaid ? (
                   <Chip icon="check-circle" style={styles.paidChip}>Sudah Dibayar</Chip>
@@ -268,7 +278,8 @@ export default function VehicleDetailScreen() {
                   <Chip icon="alert" style={styles.unpaidChip}>Belum Dibayar</Chip>
                 )}
               </View>
-            ))
+            );
+            })
           )}
         </Card.Content>
       </Card>
