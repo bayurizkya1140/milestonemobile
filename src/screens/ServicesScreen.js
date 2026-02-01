@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
-import { FAB, Card, Title, Paragraph, Button, Chip, IconButton } from 'react-native-paper';
+import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getServices, deleteService, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
@@ -69,35 +69,42 @@ export default function ServicesScreen() {
     );
   };
 
-  const getVehicleName = (vehicleId) => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
-  };
+  // Create a vehicle map for O(1) lookups instead of O(n) find operations
+  const vehicleMap = useMemo(() => {
+    const map = new Map();
+    vehicles.forEach(v => map.set(v.id, v));
+    return map;
+  }, [vehicles]);
 
-  const isUpcoming = (nextServiceDate) => {
+  const getVehicleName = useCallback((vehicleId) => {
+    const vehicle = vehicleMap.get(vehicleId);
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
+  }, [vehicleMap]);
+
+  const isUpcoming = useCallback((nextServiceDate) => {
     if (!nextServiceDate) return false;
     const nextDate = nextServiceDate.toDate();
     const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     return nextDate >= now && nextDate <= thirtyDaysFromNow;
-  };
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
     loadData();
   };
 
-  const getCurrentKm = (vehicleId) => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle && vehicle.currentKm ? vehicle.currentKm : null;
-  };
+  const getCurrentKm = useCallback((vehicleId) => {
+    const vehicle = vehicleMap.get(vehicleId);
+    return vehicle && vehicle.currentMileage ? vehicle.currentMileage : null;
+  }, [vehicleMap]);
 
-  const getKmRemaining = (item) => {
+  const getKmRemaining = useCallback((item) => {
     if (!item.nextServiceKm) return null;
     const currentKm = getCurrentKm(item.vehicleId);
     if (currentKm === null) return null;
     return item.nextServiceKm - currentKm;
-  };
+  }, [getCurrentKm]);
 
   const renderService = ({ item }) => {
     const kmRemaining = getKmRemaining(item);

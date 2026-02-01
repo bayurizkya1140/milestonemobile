@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
-import { FAB, Card, Title, Paragraph, Button, Chip, IconButton } from 'react-native-paper';
+import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getTaxes, deleteTax, updateTax, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
@@ -74,12 +74,19 @@ export default function TaxesScreen() {
     }
   };
 
-  const getVehicleName = (vehicleId) => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
-  };
+  // Create a vehicle map for O(1) lookups
+  const vehicleMap = useMemo(() => {
+    const map = new Map();
+    vehicles.forEach(v => map.set(v.id, v));
+    return map;
+  }, [vehicles]);
 
-  const isOverdue = (dueDate) => {
+  const getVehicleName = useCallback((vehicleId) => {
+    const vehicle = vehicleMap.get(vehicleId);
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
+  }, [vehicleMap]);
+
+  const isOverdue = useCallback((dueDate) => {
     if (!dueDate) return false;
     try {
       const date = dueDate?.toDate ? dueDate.toDate() : new Date(dueDate);
@@ -87,9 +94,9 @@ export default function TaxesScreen() {
     } catch (e) {
       return false;
     }
-  };
+  }, []);
 
-  const isUpcoming = (dueDate) => {
+  const isUpcoming = useCallback((dueDate) => {
     if (!dueDate) return false;
     try {
       const due = dueDate?.toDate ? dueDate.toDate() : new Date(dueDate);
@@ -99,7 +106,7 @@ export default function TaxesScreen() {
     } catch (e) {
       return false;
     }
-  };
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);

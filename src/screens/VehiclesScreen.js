@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { Card, Title, Paragraph, FAB, Text, Chip, ActivityIndicator } from 'react-native-paper';
+import { View, FlatList, StyleSheet, RefreshControl, Alert } from 'react-native';
+import { Card, Title, Paragraph, FAB, Text, Chip, ActivityIndicator, IconButton } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
-import { getVehicles } from '../services/firebaseService';
+import { getVehicles, deleteVehicle } from '../services/firebaseService';
 import { useAuth } from '../contexts/AuthContext';
 
 const VehiclesScreen = ({ navigation }) => {
@@ -44,6 +44,29 @@ const VehiclesScreen = ({ navigation }) => {
     fetchVehicles();
   };
 
+  const handleDelete = (vehicleId, vehicleName) => {
+    Alert.alert(
+      'Hapus Kendaraan',
+      `Apakah Anda yakin ingin menghapus ${vehicleName}?`,
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteVehicle(vehicleId);
+              fetchVehicles();
+            } catch (error) {
+              console.error('Error deleting vehicle:', error);
+              Alert.alert('Error', 'Gagal menghapus kendaraan');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderVehicle = ({ item }) => (
     <Card 
       style={styles.card}
@@ -51,14 +74,24 @@ const VehiclesScreen = ({ navigation }) => {
     >
       <Card.Content>
         <View style={styles.cardHeader}>
-          <Title>{item.brand} {item.model}</Title>
-          <Chip icon={item.type === 'motor' ? 'motorbike' : 'car'}>
-            {item.type === 'motor' ? 'Motor' : 'Mobil'}
-          </Chip>
+          <View style={styles.cardContent}>
+            <Title>{item.brand} {item.model}</Title>
+            <Paragraph>Plat: {item.licensePlate}</Paragraph>
+            <Paragraph>Tahun: {item.year}</Paragraph>
+            <Paragraph>Kilometer: {item.currentMileage?.toLocaleString() || 0} km</Paragraph>
+          </View>
+          <View style={styles.actions}>
+            <Chip icon={item.type === 'motor' ? 'motorbike' : 'car'}>
+              {item.type === 'motor' ? 'Motor' : 'Mobil'}
+            </Chip>
+            <IconButton
+              icon="delete"
+              size={24}
+              onPress={() => handleDelete(item.id, `${item.brand} ${item.model}`)}
+              iconColor="#d32f2f"
+            />
+          </View>
         </View>
-        <Paragraph>Plat: {item.licensePlate}</Paragraph>
-        <Paragraph>Tahun: {item.year}</Paragraph>
-        <Paragraph>Kilometer: {item.currentMileage?.toLocaleString() || 0} km</Paragraph>
       </Card.Content>
     </Card>
   );
@@ -133,8 +166,14 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cardContent: {
+    flex: 1,
+  },
+  actions: {
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 8,
   },
   fab: {
     position: 'absolute',

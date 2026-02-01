@@ -44,7 +44,7 @@ export default function VehicleDetailScreen() {
       const vehicles = await getVehicles(user.uid);
       const vehicleData = vehicles.find(v => v.id === vehicleId);
       setVehicle(vehicleData);
-      setNewKm(vehicleData?.currentKm?.toString() || '');
+      setNewKm(vehicleData?.currentMileage?.toString() || '');
 
       const [servicesData, partsData, taxesData] = await Promise.all([
         getServices(user.uid, vehicleId),
@@ -69,7 +69,7 @@ export default function VehicleDetailScreen() {
     }
 
     try {
-      await updateVehicle(vehicleId, { currentKm: parseInt(newKm) });
+      await updateVehicle(vehicleId, { currentMileage: parseInt(newKm) });
       setEditingKm(false);
       loadVehicleData();
       Alert.alert('Sukses', 'Kilometer berhasil diperbarui');
@@ -97,7 +97,7 @@ export default function VehicleDetailScreen() {
               {!editingKm ? (
                 <>
                   <Paragraph style={styles.kmValue}>
-                    {vehicle.currentKm?.toLocaleString('id-ID') || 0} km
+                    {vehicle.currentMileage?.toLocaleString('id-ID') || 0} km
                   </Paragraph>
                   <Button onPress={() => setEditingKm(true)} compact>
                     Edit
@@ -147,7 +147,7 @@ export default function VehicleDetailScreen() {
               // Ambil kilometer saat servis, kilometer servis berikutnya, dan sisa kilometer
               const kmSaatServis = service.kilometer || null;
               const nextServiceKm = service.nextServiceKm || null;
-              const currentKm = vehicle.currentKm || null;
+              const currentKm = vehicle.currentMileage || null;
               const kmRemaining = (nextServiceKm && currentKm !== null) ? (nextServiceKm - currentKm) : null;
               const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
               const needsService = kmRemaining !== null && kmRemaining <= 0;
@@ -216,10 +216,10 @@ export default function VehicleDetailScreen() {
             parts.slice(0, 3).map((part) => {
               let kmRemaining = null;
               if (
-                vehicle.currentKm != null &&
+                vehicle.currentMileage != null &&
                 part.replacementKm != null
               ) {
-                kmRemaining = part.replacementKm - vehicle.currentKm;
+                kmRemaining = part.replacementKm - vehicle.currentMileage;
               }
               return (
                 <View key={part.id} style={styles.item}>

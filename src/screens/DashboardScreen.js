@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { Card, Title, Paragraph, Button, Chip, IconButton } from 'react-native-paper';
+import { Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { getVehicles } from '../services/firebaseService';
-import { getServices } from '../services/firebaseService';
-import { getParts } from '../services/firebaseService';
-import { getTaxes } from '../services/firebaseService';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale/id';
+import { getVehicles, getServices, getParts, getTaxes } from '../services/firebaseService';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function DashboardScreen() {
@@ -48,36 +43,40 @@ export default function DashboardScreen() {
     );
   };
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const vehiclesData = await getVehicles(user.uid);
+      // Fetch all data in parallel for better performance
+      const [vehiclesData, servicesData, partsData, taxesData] = await Promise.all([
+        getVehicles(user.uid),
+        getServices(user.uid),
+        getParts(user.uid),
+        getTaxes(user.uid)
+      ]);
       setVehicles(vehiclesData);
-
-      const servicesData = await getServices(user.uid);
-      const partsData = await getParts(user.uid);
-      const taxesData = await getTaxes(user.uid);
 
       // Deklarasi now
       const now = new Date();
 
-      // Filter upcoming services (sisa kilometer <= 300)
+      // Filter upcoming services (sisa kilometer <= 1000 ATAU sudah lewat)
       const upcoming = servicesData.filter(service => {
         if (!service.vehicleId || service.nextServiceKm == null) return false;
         const vehicle = vehiclesData.find(v => v.id === service.vehicleId);
-        if (!vehicle || vehicle.currentKm == null) return false;
-        const kmRemaining = service.nextServiceKm - vehicle.currentKm;
-        return kmRemaining > 0 && kmRemaining <= 300;
+        if (!vehicle || vehicle.currentMileage == null) return false;
+        const kmRemaining = service.nextServiceKm - vehicle.currentMileage;
+        // Tampilkan jika sudah lewat (kmRemaining <= 0) ATAU mendekati servis (kmRemaining <= 1000)
+        return kmRemaining <= 1000;
       });
       setUpcomingServices(upcoming.slice(0, 5));
 
-      // Filter parts that need replacement
+      // Filter parts that need replacement (sisa kilometer <= 1000 ATAU sudah lewat)
       const partsNeedingReplacement = partsData.filter(part => {
         if (!part.vehicleId || !part.replacementKm) return false;
         const vehicle = vehiclesData.find(v => v.id === part.vehicleId);
-        if (!vehicle || !vehicle.currentKm) return false;
-        const kmRemaining = part.replacementKm - (vehicle.currentKm - part.installedKm);
-        return kmRemaining <= 5000 && kmRemaining > 0;
+        if (!vehicle || !vehicle.currentMileage) return false;
+        const kmRemaining = part.replacementKm - vehicle.currentMileage;
+        // Tampilkan jika sudah lewat (kmRemaining <= 0) ATAU mendekati penggantian (kmRemaining <= 1000)
+        return kmRemaining <= 1000;
       });
       setPartsToReplace(partsNeedingReplacement.slice(0, 5));
 
@@ -99,12 +98,12 @@ export default function DashboardScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.uid]);
 
-  const getVehicleName = (vehicleId) => {
+  const getVehicleName = useCallback((vehicleId) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     return vehicle ? `${vehicle.brand} ${vehicle.model}` : 'Unknown';
-  };
+  }, [vehicles]);
 
   return (
     <ScrollView style={styles.container}>

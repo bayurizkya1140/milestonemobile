@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
-import { FAB, Card, Title, Paragraph, Button, Chip, IconButton } from 'react-native-paper';
+import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getParts, deletePart, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
@@ -63,18 +63,25 @@ export default function PartsScreen() {
     );
   };
 
-  const getVehicleName = (vehicleId) => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
-  };
+  // Create a vehicle map for O(1) lookups
+  const vehicleMap = useMemo(() => {
+    const map = new Map();
+    vehicles.forEach(v => map.set(v.id, v));
+    return map;
+  }, [vehicles]);
 
-  const getKmRemaining = (part) => {
-    const vehicle = vehicles.find(v => v.id === part.vehicleId);
-    if (!vehicle || vehicle.currentKm == null || part.replacementKm == null) {
+  const getVehicleName = useCallback((vehicleId) => {
+    const vehicle = vehicleMap.get(vehicleId);
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
+  }, [vehicleMap]);
+
+  const getKmRemaining = useCallback((part) => {
+    const vehicle = vehicleMap.get(part.vehicleId);
+    if (!vehicle || vehicle.currentMileage == null || part.replacementKm == null) {
       return null;
     }
-    return part.replacementKm - vehicle.currentKm;
-  };
+    return part.replacementKm - vehicle.currentMileage;
+  }, [vehicleMap]);
 
   const onRefresh = () => {
     setRefreshing(true);
