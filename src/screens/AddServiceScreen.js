@@ -8,10 +8,12 @@ import { getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 import { Timestamp } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AddServiceScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function AddServiceScreen() {
 
   const loadVehicles = async () => {
     try {
-      const data = await getVehicles();
+      const data = await getVehicles(user.uid);
       setVehicles(data);
     } catch (error) {
       console.error('Error loading vehicles:', error);
@@ -71,7 +73,7 @@ export default function AddServiceScreen() {
         serviceData.nextServiceKm = parseInt(formData.nextServiceKm);
       }
 
-      await addService(serviceData);
+      await addService(serviceData, user.uid);
       Alert.alert('Sukses', 'Servis berhasil ditambahkan', [
         { 
           text: 'OK', 
@@ -110,7 +112,7 @@ export default function AddServiceScreen() {
                 {vehicles.map((vehicle) => (
                   <Picker.Item
                     key={vehicle.id}
-                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})`}
+                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`}
                     value={vehicle.id}
                   />
                 ))}

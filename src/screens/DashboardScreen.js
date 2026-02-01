@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, Button, Chip } from 'react-native-paper';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Card, Title, Paragraph, Button, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getVehicles } from '../services/firebaseService';
 import { getServices } from '../services/firebaseService';
@@ -8,9 +8,11 @@ import { getParts } from '../services/firebaseService';
 import { getTaxes } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function DashboardScreen() {
   const navigation = useNavigation();
+  const { user, logout } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [upcomingServices, setUpcomingServices] = useState([]);
   const [partsToReplace, setPartsToReplace] = useState([]);
@@ -25,15 +27,36 @@ export default function DashboardScreen() {
     return unsubscribe;
   }, [navigation]);
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Keluar',
+      'Apakah Anda yakin ingin keluar dari akun?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Keluar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const vehiclesData = await getVehicles();
+      const vehiclesData = await getVehicles(user.uid);
       setVehicles(vehiclesData);
 
-      const servicesData = await getServices();
-      const partsData = await getParts();
-      const taxesData = await getTaxes();
+      const servicesData = await getServices(user.uid);
+      const partsData = await getParts(user.uid);
+      const taxesData = await getTaxes(user.uid);
 
       // Deklarasi now
       const now = new Date();
@@ -85,6 +108,16 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Title style={styles.welcomeText}>Selamat Datang!</Title>
+        <IconButton
+          icon="logout"
+          size={24}
+          onPress={handleLogout}
+          iconColor="#d32f2f"
+        />
+      </View>
+
       <TouchableOpacity onPress={() => navigation.navigate('Vehicles')}>
         <Card style={styles.card}>
           <Card.Content>
@@ -129,6 +162,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  welcomeText: {
+    fontSize: 24,
   },
   card: {
     marginBottom: 16,

@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 // ============================================
@@ -47,9 +47,10 @@ const firebaseConfig = {
 // };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Firestore
 export const db = getFirestore(app);
 
+// Auth will be initialized lazily in firebaseService.js
 export default app;

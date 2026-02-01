@@ -5,9 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import { getServices, deleteService, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ServicesScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [services, setServices] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +27,8 @@ export default function ServicesScreen() {
     try {
       setLoading(true);
       const [servicesData, vehiclesData] = await Promise.all([
-        getServices(),
-        getVehicles(),
+        getServices(user.uid),
+        getVehicles(user.uid),
       ]);
       console.log('Loaded services:', servicesData.length);
       setServices(servicesData);
@@ -69,7 +71,7 @@ export default function ServicesScreen() {
 
   const getVehicleName = (vehicleId) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})` : 'Unknown';
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
   };
 
   const isUpcoming = (nextServiceDate) => {

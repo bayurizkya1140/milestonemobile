@@ -1,45 +1,62 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button, Card, Title } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { TextInput, Button, Text, SegmentedButtons, useTheme } from 'react-native-paper';
 import { addVehicle } from '../services/firebaseService';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function AddVehicleScreen() {
-  const navigation = useNavigation();
+const AddVehicleScreen = ({ navigation }) => {
+  const theme = useTheme();
+  const { user } = useAuth();
+  
+  const [vehicleType, setVehicleType] = useState('motor');
+  const [brand, setBrand] = useState('');
+  const [model, setModel] = useState('');
+  const [year, setYear] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
+  const [currentMileage, setCurrentMileage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    brand: '',
-    model: '',
-    year: '',
-    plateNumber: '',
-    currentKm: '',
-    color: '',
-    notes: '',
-  });
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.brand || !formData.model || !formData.plateNumber) {
-      Alert.alert('Error', 'Mohon isi brand, model, dan nomor plat');
+  const handleSave = async () => {
+    // Validation
+    if (!brand.trim() || !model.trim() || !year.trim() || !licensePlate.trim()) {
+      Alert.alert('Error', 'Mohon lengkapi semua field yang wajib diisi');
       return;
     }
 
+    if (!user || !user.uid) {
+      Alert.alert('Error', 'Anda harus login terlebih dahulu');
+      return;
+    }
+
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) {
+      Alert.alert('Error', 'Tahun kendaraan tidak valid');
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
-      await addVehicle({
-        ...formData,
-        year: formData.year ? parseInt(formData.year) : null,
-        currentKm: formData.currentKm ? parseInt(formData.currentKm) : 0,
-      });
+      const vehicleData = {
+        type: vehicleType,
+        brand: brand.trim(),
+        model: model.trim(),
+        year: yearNum,
+        licensePlate: licensePlate.trim().toUpperCase(),
+        currentMileage: currentMileage ? parseInt(currentMileage) : 0,
+      };
+
+      console.log('Adding vehicle with userId:', user.uid);
+      console.log('Vehicle data:', vehicleData);
+      
+      const vehicleId = await addVehicle(vehicleData, user.uid);
+      console.log('Vehicle added successfully with ID:', vehicleId);
+      
       Alert.alert('Sukses', 'Kendaraan berhasil ditambahkan', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (error) {
       console.error('Error adding vehicle:', error);
-      Alert.alert('Error', 'Gagal menambahkan kendaraan');
+      Alert.alert('Error', 'Gagal menambahkan kendaraan: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -47,97 +64,105 @@ export default function AddVehicleScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title>Informasi Kendaraan</Title>
-          
-          <TextInput
-            label="Brand *"
-            value={formData.brand}
-            onChangeText={(value) => handleChange('brand', value)}
-            mode="outlined"
-            style={styles.input}
-          />
+      <View style={styles.content}>
+        <Text style={styles.label}>Jenis Kendaraan</Text>
+        <SegmentedButtons
+          value={vehicleType}
+          onValueChange={setVehicleType}
+          buttons={[
+            { value: 'motor', label: 'Motor' },
+            { value: 'mobil', label: 'Mobil' },
+          ]}
+          style={styles.segmentedButton}
+        />
 
-          <TextInput
-            label="Model *"
-            value={formData.model}
-            onChangeText={(value) => handleChange('model', value)}
-            mode="outlined"
-            style={styles.input}
-          />
+        <TextInput
+          label="Merek *"
+          value={brand}
+          onChangeText={setBrand}
+          mode="outlined"
+          style={styles.input}
+          placeholder="Contoh: Honda, Toyota"
+        />
 
-          <TextInput
-            label="Tahun"
-            value={formData.year}
-            onChangeText={(value) => handleChange('year', value)}
-            mode="outlined"
-            keyboardType="numeric"
-            style={styles.input}
-          />
+        <TextInput
+          label="Model *"
+          value={model}
+          onChangeText={setModel}
+          mode="outlined"
+          style={styles.input}
+          placeholder="Contoh: Vario, Avanza"
+        />
 
-          <TextInput
-            label="Nomor Plat *"
-            value={formData.plateNumber}
-            onChangeText={(value) => handleChange('plateNumber', value.toUpperCase())}
-            mode="outlined"
-            style={styles.input}
-          />
+        <TextInput
+          label="Tahun *"
+          value={year}
+          onChangeText={setYear}
+          mode="outlined"
+          style={styles.input}
+          keyboardType="numeric"
+          placeholder="Contoh: 2020"
+          maxLength={4}
+        />
 
-          <TextInput
-            label="Warna"
-            value={formData.color}
-            onChangeText={(value) => handleChange('color', value)}
-            mode="outlined"
-            style={styles.input}
-          />
+        <TextInput
+          label="Plat Nomor *"
+          value={licensePlate}
+          onChangeText={setLicensePlate}
+          mode="outlined"
+          style={styles.input}
+          autoCapitalize="characters"
+          placeholder="Contoh: B 1234 ABC"
+        />
 
-          <TextInput
-            label="Kilometer Saat Ini"
-            value={formData.currentKm}
-            onChangeText={(value) => handleChange('currentKm', value)}
-            mode="outlined"
-            keyboardType="numeric"
-            style={styles.input}
-          />
+        <TextInput
+          label="Kilometer Saat Ini"
+          value={currentMileage}
+          onChangeText={setCurrentMileage}
+          mode="outlined"
+          style={styles.input}
+          keyboardType="numeric"
+          placeholder="Contoh: 15000"
+        />
 
-          <TextInput
-            label="Catatan"
-            value={formData.notes}
-            onChangeText={(value) => handleChange('notes', value)}
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            style={styles.input}
-          />
-
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            loading={loading}
-            style={styles.button}
-          >
-            Simpan
-          </Button>
-        </Card.Content>
-      </Card>
+        <Button
+          mode="contained"
+          onPress={handleSave}
+          loading={loading}
+          disabled={loading}
+          style={styles.button}
+        >
+          Simpan Kendaraan
+        </Button>
+      </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  card: {
-    margin: 16,
-    elevation: 2,
+  content: {
+    padding: 16,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  segmentedButton: {
+    marginBottom: 16,
   },
   input: {
-    marginBottom: 12,
+    marginBottom: 16,
+    backgroundColor: '#fff',
   },
   button: {
     marginTop: 8,
+    paddingVertical: 6,
   },
 });
+
+export default AddVehicleScreen;

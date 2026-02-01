@@ -8,10 +8,23 @@ import { getParts } from '../services/firebaseService';
 import { getTaxes } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
+import { useAuth } from '../contexts/AuthContext';
+
+// Helper function to format date from Firestore Timestamp
+const getFormattedDate = (timestamp) => {
+  if (!timestamp) return null;
+  try {
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return format(date, 'd MMMM yyyy', { locale: id });
+  } catch (error) {
+    return null;
+  }
+};
 
 export default function VehicleDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
+  const { user } = useAuth();
   const { vehicleId } = route.params;
   const [vehicle, setVehicle] = useState(null);
   const [services, setServices] = useState([]);
@@ -28,15 +41,15 @@ export default function VehicleDetailScreen() {
   const loadVehicleData = async () => {
     try {
       setLoading(true);
-      const vehicles = await getVehicles();
+      const vehicles = await getVehicles(user.uid);
       const vehicleData = vehicles.find(v => v.id === vehicleId);
       setVehicle(vehicleData);
       setNewKm(vehicleData?.currentKm?.toString() || '');
 
       const [servicesData, partsData, taxesData] = await Promise.all([
-        getServices(vehicleId),
-        getParts(vehicleId),
-        getTaxes(vehicleId),
+        getServices(user.uid, vehicleId),
+        getParts(user.uid, vehicleId),
+        getTaxes(user.uid, vehicleId),
       ]);
 
       setServices(servicesData);
@@ -75,7 +88,7 @@ export default function VehicleDetailScreen() {
       <Card style={styles.card}>
         <Card.Content>
           <Title>{vehicle.brand} {vehicle.model}</Title>
-          <Paragraph>{vehicle.year} • {vehicle.plateNumber}</Paragraph>
+          <Paragraph>{vehicle.year} • {vehicle.licensePlate}</Paragraph>
           {vehicle.color && <Paragraph>Warna: {vehicle.color}</Paragraph>}
           
           <View style={styles.kmSection}>

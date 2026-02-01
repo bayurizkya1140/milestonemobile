@@ -1,25 +1,31 @@
+import { db } from '../../firebase.config';
 import { 
   collection, 
   addDoc, 
   getDocs, 
   doc, 
   updateDoc, 
-  deleteDoc,
-  query,
-  where,
+  deleteDoc, 
+  query, 
+  where, 
   orderBy,
-  Timestamp
+  serverTimestamp,
+  getDoc
 } from 'firebase/firestore';
-import { db } from '../../firebase.config';
 
-// Vehicle Service
-export const addVehicle = async (vehicleData) => {
+// ============ VEHICLES ============
+export const addVehicle = async (vehicleData, userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     const docRef = await addDoc(collection(db, 'vehicles'), {
       ...vehicleData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
+      userId: userId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
+    console.log('Vehicle added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
   } catch (error) {
     console.error('Error adding vehicle:', error);
@@ -27,52 +33,53 @@ export const addVehicle = async (vehicleData) => {
   }
 };
 
-export const getVehicles = async () => {
+export const getVehicles = async (userId) => {
   try {
-    let q;
-    try {
-      q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'));
-    } catch (indexError) {
-      console.warn('Index not found for vehicles, using query without orderBy:', indexError);
-      q = query(collection(db, 'vehicles'));
+    if (!userId) {
+      console.log('No userId provided, returning empty array');
+      return [];
     }
+    console.log('Fetching vehicles for userId:', userId);
+    const q = query(
+      collection(db, 'vehicles'), 
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
     const querySnapshot = await getDocs(q);
-    let vehicles = querySnapshot.docs.map(doc => ({
+    const vehicles = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    
-    // Sort di client side jika orderBy gagal
-    vehicles.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-      return dateB - dateA; // Descending order
-    });
-    
+    console.log('Found vehicles:', vehicles.length);
     return vehicles;
   } catch (error) {
     console.error('Error getting vehicles:', error);
-    // Fallback: coba ambil semua tanpa filter/order
-    try {
-      const querySnapshot = await getDocs(collection(db, 'vehicles'));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (fallbackError) {
-      console.error('Fallback query also failed:', fallbackError);
-      return []; // Return empty array instead of throwing
+    throw error;
+  }
+};
+
+export const getVehicleById = async (vehicleId) => {
+  try {
+    const docRef = doc(db, 'vehicles', vehicleId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
     }
+    return null;
+  } catch (error) {
+    console.error('Error getting vehicle:', error);
+    throw error;
   }
 };
 
 export const updateVehicle = async (vehicleId, vehicleData) => {
   try {
-    const vehicleRef = doc(db, 'vehicles', vehicleId);
-    await updateDoc(vehicleRef, {
+    const docRef = doc(db, 'vehicles', vehicleId);
+    await updateDoc(docRef, {
       ...vehicleData,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     });
+    return true;
   } catch (error) {
     console.error('Error updating vehicle:', error);
     throw error;
@@ -82,20 +89,26 @@ export const updateVehicle = async (vehicleId, vehicleData) => {
 export const deleteVehicle = async (vehicleId) => {
   try {
     await deleteDoc(doc(db, 'vehicles', vehicleId));
+    return true;
   } catch (error) {
     console.error('Error deleting vehicle:', error);
     throw error;
   }
 };
 
-// Service Service
-export const addService = async (serviceData) => {
+// ============ SERVICES ============
+export const addService = async (serviceData, userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     const docRef = await addDoc(collection(db, 'services'), {
       ...serviceData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
+      userId: userId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
+    console.log('Service added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
   } catch (error) {
     console.error('Error adding service:', error);
@@ -103,75 +116,46 @@ export const addService = async (serviceData) => {
   }
 };
 
-export const getServices = async (vehicleId = null) => {
+export const getServices = async (userId, vehicleId = null) => {
   try {
+    if (!userId) {
+      console.log('No userId provided, returning empty array');
+      return [];
+    }
     let q;
     if (vehicleId) {
-      // Query dengan where + orderBy memerlukan index di Firestore
-      // Jika error, coba tanpa orderBy dulu
-      try {
-        q = query(
-          collection(db, 'services'),
-          where('vehicleId', '==', vehicleId),
-          orderBy('serviceDate', 'desc')
-        );
-      } catch (indexError) {
-        // Jika index belum ada, gunakan query tanpa orderBy
-        console.warn('Index not found, using query without orderBy:', indexError);
-        q = query(
-          collection(db, 'services'),
-          where('vehicleId', '==', vehicleId)
-        );
-      }
+      q = query(
+        collection(db, 'services'),
+        where('userId', '==', userId),
+        where('vehicleId', '==', vehicleId),
+        orderBy('serviceDate', 'desc')
+      );
     } else {
-      // Query semua services, coba dengan orderBy dulu
-      try {
-        q = query(collection(db, 'services'), orderBy('serviceDate', 'desc'));
-      } catch (indexError) {
-        // Jika index belum ada, gunakan query tanpa orderBy
-        console.warn('Index not found, using query without orderBy:', indexError);
-        q = query(collection(db, 'services'));
-      }
+      q = query(
+        collection(db, 'services'),
+        where('userId', '==', userId),
+        orderBy('serviceDate', 'desc')
+      );
     }
     const querySnapshot = await getDocs(q);
-    let services = querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    
-    // Sort di client side jika orderBy gagal
-    if (!vehicleId || services.length > 0) {
-      services.sort((a, b) => {
-        const dateA = a.serviceDate?.toDate ? a.serviceDate.toDate() : new Date(0);
-        const dateB = b.serviceDate?.toDate ? b.serviceDate.toDate() : new Date(0);
-        return dateB - dateA; // Descending order
-      });
-    }
-    
-    return services;
   } catch (error) {
     console.error('Error getting services:', error);
-    // Fallback: coba ambil semua tanpa filter/order
-    try {
-      const querySnapshot = await getDocs(collection(db, 'services'));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (fallbackError) {
-      console.error('Fallback query also failed:', fallbackError);
-      return []; // Return empty array instead of throwing
-    }
+    throw error;
   }
 };
 
 export const updateService = async (serviceId, serviceData) => {
   try {
-    const serviceRef = doc(db, 'services', serviceId);
-    await updateDoc(serviceRef, {
+    const docRef = doc(db, 'services', serviceId);
+    await updateDoc(docRef, {
       ...serviceData,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     });
+    return true;
   } catch (error) {
     console.error('Error updating service:', error);
     throw error;
@@ -181,20 +165,26 @@ export const updateService = async (serviceId, serviceData) => {
 export const deleteService = async (serviceId) => {
   try {
     await deleteDoc(doc(db, 'services', serviceId));
+    return true;
   } catch (error) {
     console.error('Error deleting service:', error);
     throw error;
   }
 };
 
-// Parts Service
-export const addPart = async (partData) => {
+// ============ PARTS ============
+export const addPart = async (partData, userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     const docRef = await addDoc(collection(db, 'parts'), {
       ...partData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
+      userId: userId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
+    console.log('Part added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
   } catch (error) {
     console.error('Error adding part:', error);
@@ -202,68 +192,46 @@ export const addPart = async (partData) => {
   }
 };
 
-export const getParts = async (vehicleId = null) => {
+export const getParts = async (userId, vehicleId = null) => {
   try {
+    if (!userId) {
+      console.log('No userId provided, returning empty array');
+      return [];
+    }
     let q;
     if (vehicleId) {
-      try {
-        q = query(
-          collection(db, 'parts'),
-          where('vehicleId', '==', vehicleId),
-          orderBy('installedAt', 'desc')
-        );
-      } catch (indexError) {
-        console.warn('Index not found for parts, using query without orderBy:', indexError);
-        q = query(
-          collection(db, 'parts'),
-          where('vehicleId', '==', vehicleId)
-        );
-      }
+      q = query(
+        collection(db, 'parts'),
+        where('userId', '==', userId),
+        where('vehicleId', '==', vehicleId),
+        orderBy('installedAt', 'desc')
+      );
     } else {
-      try {
-        q = query(collection(db, 'parts'), orderBy('installedAt', 'desc'));
-      } catch (indexError) {
-        console.warn('Index not found for parts, using query without orderBy:', indexError);
-        q = query(collection(db, 'parts'));
-      }
+      q = query(
+        collection(db, 'parts'),
+        where('userId', '==', userId),
+        orderBy('installedAt', 'desc')
+      );
     }
     const querySnapshot = await getDocs(q);
-    let parts = querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    
-    // Sort di client side jika orderBy gagal
-    parts.sort((a, b) => {
-      const dateA = a.installedAt?.toDate ? a.installedAt.toDate() : new Date(0);
-      const dateB = b.installedAt?.toDate ? b.installedAt.toDate() : new Date(0);
-      return dateB - dateA; // Descending order
-    });
-    
-    return parts;
   } catch (error) {
     console.error('Error getting parts:', error);
-    // Fallback: coba ambil semua tanpa filter/order
-    try {
-      const querySnapshot = await getDocs(collection(db, 'parts'));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (fallbackError) {
-      console.error('Fallback query also failed:', fallbackError);
-      return []; // Return empty array instead of throwing
-    }
+    throw error;
   }
 };
 
 export const updatePart = async (partId, partData) => {
   try {
-    const partRef = doc(db, 'parts', partId);
-    await updateDoc(partRef, {
+    const docRef = doc(db, 'parts', partId);
+    await updateDoc(docRef, {
       ...partData,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     });
+    return true;
   } catch (error) {
     console.error('Error updating part:', error);
     throw error;
@@ -273,20 +241,26 @@ export const updatePart = async (partId, partData) => {
 export const deletePart = async (partId) => {
   try {
     await deleteDoc(doc(db, 'parts', partId));
+    return true;
   } catch (error) {
     console.error('Error deleting part:', error);
     throw error;
   }
 };
 
-// Tax Service
-export const addTax = async (taxData) => {
+// ============ TAXES ============
+export const addTax = async (taxData, userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     const docRef = await addDoc(collection(db, 'taxes'), {
       ...taxData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
+      userId: userId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
+    console.log('Tax added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
   } catch (error) {
     console.error('Error adding tax:', error);
@@ -294,68 +268,46 @@ export const addTax = async (taxData) => {
   }
 };
 
-export const getTaxes = async (vehicleId = null) => {
+export const getTaxes = async (userId, vehicleId = null) => {
   try {
+    if (!userId) {
+      console.log('No userId provided, returning empty array');
+      return [];
+    }
     let q;
     if (vehicleId) {
-      try {
-        q = query(
-          collection(db, 'taxes'),
-          where('vehicleId', '==', vehicleId),
-          orderBy('dueDate', 'asc')
-        );
-      } catch (indexError) {
-        console.warn('Index not found for taxes, using query without orderBy:', indexError);
-        q = query(
-          collection(db, 'taxes'),
-          where('vehicleId', '==', vehicleId)
-        );
-      }
+      q = query(
+        collection(db, 'taxes'),
+        where('userId', '==', userId),
+        where('vehicleId', '==', vehicleId),
+        orderBy('dueDate', 'asc')
+      );
     } else {
-      try {
-        q = query(collection(db, 'taxes'), orderBy('dueDate', 'asc'));
-      } catch (indexError) {
-        console.warn('Index not found for taxes, using query without orderBy:', indexError);
-        q = query(collection(db, 'taxes'));
-      }
+      q = query(
+        collection(db, 'taxes'),
+        where('userId', '==', userId),
+        orderBy('dueDate', 'asc')
+      );
     }
     const querySnapshot = await getDocs(q);
-    let taxes = querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    
-    // Sort di client side jika orderBy gagal
-    taxes.sort((a, b) => {
-      const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(0);
-      const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(0);
-      return dateA - dateB; // Ascending order
-    });
-    
-    return taxes;
   } catch (error) {
     console.error('Error getting taxes:', error);
-    // Fallback: coba ambil semua tanpa filter/order
-    try {
-      const querySnapshot = await getDocs(collection(db, 'taxes'));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (fallbackError) {
-      console.error('Fallback query also failed:', fallbackError);
-      return []; // Return empty array instead of throwing
-    }
+    throw error;
   }
 };
 
 export const updateTax = async (taxId, taxData) => {
   try {
-    const taxRef = doc(db, 'taxes', taxId);
-    await updateDoc(taxRef, {
+    const docRef = doc(db, 'taxes', taxId);
+    await updateDoc(docRef, {
       ...taxData,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     });
+    return true;
   } catch (error) {
     console.error('Error updating tax:', error);
     throw error;
@@ -365,6 +317,7 @@ export const updateTax = async (taxId, taxData) => {
 export const deleteTax = async (taxId) => {
   try {
     await deleteDoc(doc(db, 'taxes', taxId));
+    return true;
   } catch (error) {
     console.error('Error deleting tax:', error);
     throw error;

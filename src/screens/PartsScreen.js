@@ -5,9 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import { getParts, deletePart, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function PartsScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [parts, setParts] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +27,8 @@ export default function PartsScreen() {
     try {
       setLoading(true);
       const [partsData, vehiclesData] = await Promise.all([
-        getParts(),
-        getVehicles(),
+        getParts(user.uid),
+        getVehicles(user.uid),
       ]);
       setParts(partsData);
       setVehicles(vehiclesData);
@@ -63,7 +65,7 @@ export default function PartsScreen() {
 
   const getVehicleName = (vehicleId) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})` : 'Unknown';
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
   };
 
   const getKmRemaining = (part) => {

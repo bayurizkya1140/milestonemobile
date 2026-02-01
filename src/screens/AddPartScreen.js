@@ -7,10 +7,12 @@ import { addPart } from '../services/firebaseService';
 import { getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Timestamp } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AddPartScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export default function AddPartScreen() {
 
   const loadVehicles = async () => {
     try {
-      const data = await getVehicles();
+      const data = await getVehicles(user.uid);
       setVehicles(data);
     } catch (error) {
       console.error('Error loading vehicles:', error);
@@ -62,7 +64,7 @@ export default function AddPartScreen() {
         installedAt: Timestamp.fromDate(formData.installedAt),
         replacementKm: parseInt(formData.replacementKm),
         notes: formData.notes || null,
-      });
+      }, user.uid);
       Alert.alert('Sukses', 'Part berhasil ditambahkan', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -92,7 +94,7 @@ export default function AddPartScreen() {
                 {vehicles.map((vehicle) => (
                   <Picker.Item
                     key={vehicle.id}
-                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})`}
+                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`}
                     value={vehicle.id}
                   />
                 ))}

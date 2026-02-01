@@ -5,9 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import { getTaxes, deleteTax, updateTax, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function TaxesScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [taxes, setTaxes] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +27,8 @@ export default function TaxesScreen() {
     try {
       setLoading(true);
       const [taxesData, vehiclesData] = await Promise.all([
-        getTaxes(),
-        getVehicles(),
+        getTaxes(user.uid),
+        getVehicles(user.uid),
       ]);
       setTaxes(taxesData);
       setVehicles(vehiclesData);
@@ -74,7 +76,7 @@ export default function TaxesScreen() {
 
   const getVehicleName = (vehicleId) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})` : 'Unknown';
+    return vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})` : 'Unknown';
   };
 
   const isOverdue = (dueDate) => {

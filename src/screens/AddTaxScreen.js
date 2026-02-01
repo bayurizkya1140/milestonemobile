@@ -7,10 +7,12 @@ import { addTax } from '../services/firebaseService';
 import { getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Timestamp } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AddTaxScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export default function AddTaxScreen() {
 
   const loadVehicles = async () => {
     try {
-      const data = await getVehicles();
+      const data = await getVehicles(user.uid);
       setVehicles(data);
     } catch (error) {
       console.error('Error loading vehicles:', error);
@@ -57,7 +59,7 @@ export default function AddTaxScreen() {
         amount: formData.amount ? parseFloat(formData.amount) : null,
         isPaid: formData.isPaid,
         notes: formData.notes || null,
-      });
+      }, user.uid);
       Alert.alert('Sukses', 'Data pajak berhasil ditambahkan', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -87,7 +89,7 @@ export default function AddTaxScreen() {
                 {vehicles.map((vehicle) => (
                   <Picker.Item
                     key={vehicle.id}
-                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber})`}
+                    label={`${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`}
                     value={vehicle.id}
                   />
                 ))}

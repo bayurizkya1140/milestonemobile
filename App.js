@@ -1,12 +1,19 @@
 import React, { useRef } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import ErrorBoundary from './src/components/ErrorBoundary';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
-// Screens
+// Auth Screens
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+
+// Main Screens
 import DashboardScreen from './src/screens/DashboardScreen';
 import VehiclesScreen from './src/screens/VehiclesScreen';
 import ServicesScreen from './src/screens/ServicesScreen';
@@ -20,6 +27,18 @@ import VehicleDetailScreen from './src/screens/VehicleDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+const AuthStackNavigator = createStackNavigator();
+
+// Auth Navigation Stack
+function AuthStackScreen() {
+  return (
+    <AuthStackNavigator.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStackNavigator.Screen name="Login" component={LoginScreen} />
+      <AuthStackNavigator.Screen name="Register" component={RegisterScreen} />
+      <AuthStackNavigator.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    </AuthStackNavigator.Navigator>
+  );
+}
 
 function VehiclesStack() {
   return (
@@ -94,47 +113,85 @@ function TaxesStack() {
   );
 }
 
-export default function App() {
-  const navigationRef = React.useRef();
+// Main App with Bottom Tabs
+function MainApp() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Dashboard') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Vehicles') {
+            iconName = focused ? 'car' : 'car-outline';
+          } else if (route.name === 'Services') {
+            iconName = focused ? 'construct' : 'construct-outline';
+          } else if (route.name === 'Parts') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          } else if (route.name === 'Taxes') {
+            iconName = focused ? 'document-text' : 'document-text-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#2196F3',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen 
+        name="Vehicles" 
+        component={VehiclesStack} 
+        options={{ unmountOnBlur: true }}
+      />
+      <Tab.Screen name="Services" component={ServicesStack} />
+      <Tab.Screen name="Parts" component={PartsStack} />
+      <Tab.Screen name="Taxes" component={TaxesStack} />
+    </Tab.Navigator>
+  );
+}
+
+// Loading Screen
+function LoadingScreen() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#2196F3" />
+    </View>
+  );
+}
+
+// Root Navigator that handles auth state
+function RootNavigator() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
+    <NavigationContainer>
+      {user ? <MainApp /> : <AuthStackScreen />}
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
     <ErrorBoundary>
-      <PaperProvider>
-        <NavigationContainer ref={navigationRef}>
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ focused, color, size }) => {
-                let iconName;
-                if (route.name === 'Dashboard') {
-                  iconName = focused ? 'home' : 'home-outline';
-                } else if (route.name === 'Vehicles') {
-                  iconName = focused ? 'car' : 'car-outline';
-                } else if (route.name === 'Services') {
-                  iconName = focused ? 'construct' : 'construct-outline';
-                } else if (route.name === 'Parts') {
-                  iconName = focused ? 'settings' : 'settings-outline';
-                } else if (route.name === 'Taxes') {
-                  iconName = focused ? 'document-text' : 'document-text-outline';
-                }
-                return <Ionicons name={iconName} size={size} color={color} />;
-              },
-              tabBarActiveTintColor: '#2196F3',
-              tabBarInactiveTintColor: 'gray',
-              headerShown: false,
-            })}
-          >
-            <Tab.Screen name="Dashboard" component={DashboardScreen} />
-            <Tab.Screen 
-              name="Vehicles" 
-              component={VehiclesStack} 
-              options={{ unmountOnBlur: true }}
-            />
-            <Tab.Screen name="Services" component={ServicesStack} />
-            <Tab.Screen name="Parts" component={PartsStack} />
-            <Tab.Screen name="Taxes" component={TaxesStack} />
-          </Tab.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+      <AuthProvider>
+        <PaperProvider>
+          <RootNavigator />
+        </PaperProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+});
