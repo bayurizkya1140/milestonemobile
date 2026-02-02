@@ -203,21 +203,25 @@ export const getParts = async (userId, vehicleId = null) => {
       q = query(
         collection(db, 'parts'),
         where('userId', '==', userId),
-        where('vehicleId', '==', vehicleId),
-        orderBy('installedAt', 'desc')
+        where('vehicleId', '==', vehicleId)
       );
     } else {
       q = query(
         collection(db, 'parts'),
-        where('userId', '==', userId),
-        orderBy('installedAt', 'desc')
+        where('userId', '==', userId)
       );
     }
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
+    const parts = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    // Sort client-side by createdAt descending
+    return parts.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(0);
+      return dateB - dateA;
+    });
   } catch (error) {
     console.error('Error getting parts:', error);
     throw error;

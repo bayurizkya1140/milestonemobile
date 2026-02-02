@@ -69,8 +69,12 @@ export default function DashboardScreen() {
       });
       setUpcomingServices(upcoming.slice(0, 5));
 
-      // Filter parts that need replacement (sisa kilometer <= 1000 ATAU sudah lewat)
+      // Filter parts that need replacement (sisa kilometer <= 1000 ATAU sudah lewat ATAU needsReplacement = true)
       const partsNeedingReplacement = partsData.filter(part => {
+        // Part yang ditandai perlu diganti (dari switch)
+        if (part.needsReplacement === true) return true;
+        
+        // Part berdasarkan perhitungan kilometer
         if (!part.vehicleId || !part.replacementKm) return false;
         const vehicle = vehiclesData.find(v => v.id === part.vehicleId);
         if (!vehicle || !vehicle.currentMileage) return false;

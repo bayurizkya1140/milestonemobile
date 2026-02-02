@@ -90,7 +90,7 @@ export default function PartsScreen() {
 
   const renderPart = ({ item }) => {
     const kmRemaining = getKmRemaining(item);
-    const needsReplacement = kmRemaining !== null && kmRemaining <= 0;
+    const needsReplacement = item.needsReplacement === true || (kmRemaining !== null && kmRemaining <= 0);
     const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 1000;
 
     return (
@@ -122,9 +122,13 @@ export default function PartsScreen() {
                   Ganti pada: {item.replacementKm.toLocaleString('id-ID')} km
                 </Paragraph>
               )}
-              {kmRemaining !== null && (
-                <View style={styles.statusRow}>
-                  {needsReplacement ? (
+              <View style={styles.statusRow}>
+                {item.needsReplacement === true ? (
+                  <Chip icon="alert-circle" style={styles.urgentChip}>
+                    Perlu Diganti
+                  </Chip>
+                ) : kmRemaining !== null ? (
+                  needsReplacement ? (
                     <Chip icon="alert-circle" style={styles.urgentChip}>
                       Perlu Diganti Segera
                     </Chip>
@@ -136,9 +140,9 @@ export default function PartsScreen() {
                     <Chip icon="information" style={styles.infoChip}>
                       Sisa: {kmRemaining.toLocaleString('id-ID')} km
                     </Chip>
-                  )}
-                </View>
-              )}
+                  )
+                ) : null}
+              </View>
               {item.notes && (
                 <Paragraph style={styles.notes}>{item.notes}</Paragraph>
               )}

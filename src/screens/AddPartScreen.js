@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
-import { TextInput, Button, Card, Title, HelperText } from 'react-native-paper';
+import { TextInput, Button, Card, Title, HelperText, Switch, Text } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addPart, getVehicles } from '../services/firebaseService';
@@ -25,6 +25,7 @@ export default function AddPartScreen() {
     notes: '',
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [needsReplacement, setNeedsReplacement] = useState(false);
 
   useEffect(() => {
     loadVehicles();
@@ -49,21 +50,30 @@ export default function AddPartScreen() {
       return;
     }
 
-    if (!formData.installedKm || !formData.replacementKm) {
+    // Hanya validasi kilometer jika bukan part yang perlu diganti
+    if (!needsReplacement && (!formData.installedKm || !formData.replacementKm)) {
       Alert.alert('Error', 'Mohon isi kilometer terpasang dan kilometer penggantian');
       return;
     }
 
     try {
       setLoading(true);
-      await addPart({
+      
+      const partData = {
         vehicleId: formData.vehicleId,
         name: formData.name,
-        installedKm: parseInt(formData.installedKm),
-        installedAt: Timestamp.fromDate(formData.installedAt),
-        replacementKm: parseInt(formData.replacementKm),
         notes: formData.notes || null,
-      }, user.uid);
+        needsReplacement: needsReplacement,
+      };
+
+      // Hanya tambahkan data kilometer dan tanggal jika bukan part yang perlu diganti
+      if (!needsReplacement) {
+        partData.installedKm = parseInt(formData.installedKm);
+        partData.installedAt = Timestamp.fromDate(formData.installedAt);
+        partData.replacementKm = parseInt(formData.replacementKm);
+      }
+
+      await addPart(partData, user.uid);
       Alert.alert('Sukses', 'Part berhasil ditambahkan', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -110,54 +120,72 @@ export default function AddPartScreen() {
             placeholder="Contoh: Oli Mesin, Filter Udara, Ban, dll"
           />
 
-          <TextInput
-            label="Kilometer Terpasang *"
-            value={formData.installedKm}
-            onChangeText={(value) => handleChange('installedKm', value)}
-            mode="outlined"
-            keyboardType="numeric"
-            style={styles.input}
-            placeholder="Contoh: 10000"
-          />
-
-          <TextInput
-            label="Kilometer Penggantian *"
-            value={formData.replacementKm}
-            onChangeText={(value) => handleChange('replacementKm', value)}
-            mode="outlined"
-            keyboardType="numeric"
-            style={styles.input}
-            placeholder="Contoh: 20000"
-            helperText="Part akan perlu diganti setelah mencapai kilometer ini"
-          />
-
-          <Button
-            mode="outlined"
-            onPress={() => setShowDatePicker(true)}
-            style={styles.dateButton}
-          >
-            Tanggal Terpasang: {formData.installedAt.toLocaleDateString('id-ID')}
-          </Button>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={formData.installedAt}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={(event, selectedDate) => {
-                if (Platform.OS === 'android') {
-                  setShowDatePicker(false);
-                }
-                if (selectedDate) {
-                  handleChange('installedAt', selectedDate);
-                  if (Platform.OS === 'ios') {
-                    setShowDatePicker(false);
-                  }
-                } else if (Platform.OS === 'android') {
-                  setShowDatePicker(false);
-                }
-              }}
+          <View style={styles.switchContainer}>
+            <View style={styles.switchTextContainer}>
+              <Text style={styles.switchLabel}>Part Perlu Diganti</Text>
+              <Text style={styles.switchDescription}>
+                Aktifkan jika part ini perlu diganti dan Anda tidak memiliki data kilometer
+              </Text>
+            </View>
+            <Switch
+              value={needsReplacement}
+              onValueChange={setNeedsReplacement}
+              color="#2196F3"
             />
+          </View>
+
+          {!needsReplacement && (
+            <>
+              <TextInput
+                label="Kilometer Terpasang *"
+                value={formData.installedKm}
+                onChangeText={(value) => handleChange('installedKm', value)}
+                mode="outlined"
+                keyboardType="numeric"
+                style={styles.input}
+                placeholder="Contoh: 10000"
+              />
+
+              <TextInput
+                label="Kilometer Penggantian *"
+                value={formData.replacementKm}
+                onChangeText={(value) => handleChange('replacementKm', value)}
+                mode="outlined"
+                keyboardType="numeric"
+                style={styles.input}
+                placeholder="Contoh: 20000"
+                helperText="Part akan perlu diganti setelah mencapai kilometer ini"
+              />
+
+              <Button
+                mode="outlined"
+                onPress={() => setShowDatePicker(true)}
+                style={styles.dateButton}
+              >
+                Tanggal Terpasang: {formData.installedAt.toLocaleDateString('id-ID')}
+              </Button>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={formData.installedAt}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={(event, selectedDate) => {
+                    if (Platform.OS === 'android') {
+                      setShowDatePicker(false);
+                    }
+                    if (selectedDate) {
+                      handleChange('installedAt', selectedDate);
+                      if (Platform.OS === 'ios') {
+                        setShowDatePicker(false);
+                      }
+                    } else if (Platform.OS === 'android') {
+                      setShowDatePicker(false);
+                    }
+                  }}
+                />
+              )}
+            </>
           )}
 
           <TextInput
@@ -216,5 +244,28 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#e3f2fd',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  switchTextContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  switchLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1565c0',
+  },
+  switchDescription: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
   },
 });
