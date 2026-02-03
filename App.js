@@ -1,12 +1,13 @@
 import React, { useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme as NavigationDefaultTheme, DarkTheme as NavigationDarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -24,6 +25,7 @@ import AddServiceScreen from './src/screens/AddServiceScreen';
 import AddPartScreen from './src/screens/AddPartScreen';
 import AddTaxScreen from './src/screens/AddTaxScreen';
 import VehicleDetailScreen from './src/screens/VehicleDetailScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -113,8 +115,26 @@ function TaxesStack() {
   );
 }
 
+function DashboardStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="DashboardMain" 
+        component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        options={{ title: 'Pengaturan' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 // Main App with Bottom Tabs
 function MainApp() {
+  const { theme, isDark } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -133,12 +153,16 @@ function MainApp() {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2196F3',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: isDark ? '#888888' : 'gray',
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.outline,
+        },
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardStack} />
       <Tab.Screen 
         name="Vehicles" 
         component={VehiclesStack} 
@@ -153,9 +177,11 @@ function MainApp() {
 
 // Loading Screen
 function LoadingScreen() {
+  const { theme, isLoading: themeLoading } = useTheme();
+  
   return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#2196F3" />
+    <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+      <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
   );
 }
@@ -163,15 +189,49 @@ function LoadingScreen() {
 // Root Navigator that handles auth state
 function RootNavigator() {
   const { user, loading } = useAuth();
+  const { theme, isDark, isLoading: themeLoading } = useTheme();
 
-  if (loading) {
+  // Create navigation theme based on current theme
+  const navigationTheme = isDark ? {
+    ...NavigationDarkTheme,
+    colors: {
+      ...NavigationDarkTheme.colors,
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.surface,
+      text: theme.colors.onSurface,
+      border: theme.colors.outline,
+    },
+  } : {
+    ...NavigationDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.surface,
+      text: theme.colors.onSurface,
+      border: theme.colors.outline,
+    },
+  };
+
+  if (loading || themeLoading) {
     return <LoadingScreen />;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       {user ? <MainApp /> : <AuthStackScreen />}
     </NavigationContainer>
+  );
+}
+
+function AppContent() {
+  const { theme } = useTheme();
+  
+  return (
+    <PaperProvider theme={theme}>
+      <RootNavigator />
+    </PaperProvider>
   );
 }
 
@@ -179,9 +239,9 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <PaperProvider>
-          <RootNavigator />
-        </PaperProvider>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
@@ -192,6 +252,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
   },
 });

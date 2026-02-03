@@ -113,12 +113,20 @@ export default function DashboardScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Title style={styles.welcomeText}>Selamat Datang!</Title>
-        <IconButton
-          icon="logout"
-          size={24}
-          onPress={handleLogout}
-          iconColor="#d32f2f"
-        />
+        <View style={styles.headerButtons}>
+          <IconButton
+            icon="cog"
+            size={24}
+            onPress={() => navigation.navigate('Settings')}
+            iconColor="#666"
+          />
+          <IconButton
+            icon="logout"
+            size={24}
+            onPress={handleLogout}
+            iconColor="#d32f2f"
+          />
+        </View>
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Vehicles')}>
@@ -171,6 +179,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   welcomeText: {
     fontSize: 24,

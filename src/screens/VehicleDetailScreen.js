@@ -221,29 +221,48 @@ export default function VehicleDetailScreen() {
               ) {
                 kmRemaining = part.replacementKm - vehicle.currentMileage;
               }
+              
+              // Cek apakah part ditandai perlu diganti (dari switch)
+              const isNeedsReplacement = part.needsReplacement === true;
+              
               return (
                 <View key={part.id} style={styles.item}>
                   <Paragraph style={styles.itemTitle}>{part.name}</Paragraph>
-                  <Paragraph>
-                    Terpasang: {part.installedKm?.toLocaleString('id-ID')} km
-                  </Paragraph>
-                  <Paragraph>
-                    Ganti pada: {part.replacementKm != null ? part.replacementKm.toLocaleString('id-ID') : ''} km
-                  </Paragraph>
-                  {kmRemaining != null && (
-                    kmRemaining <= 0 ? (
+                  
+                  {/* Tampilkan peringatan untuk part yang perlu diganti */}
+                  {isNeedsReplacement ? (
+                    <View>
                       <Chip icon="alert-circle" style={styles.urgentChip}>
-                        Perlu Diganti Segera
+                        Part Perlu Diganti!
                       </Chip>
-                    ) : kmRemaining <= 1000 ? (
-                      <Chip icon="alert" style={styles.urgentChip}>
-                        Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                      </Chip>
-                    ) : (
-                      <Chip icon="information" style={styles.infoChip}>
-                        Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                      </Chip>
-                    )
+                      {part.notes && (
+                        <Paragraph style={styles.partNotes}>Catatan: {part.notes}</Paragraph>
+                      )}
+                    </View>
+                  ) : (
+                    <>
+                      <Paragraph>
+                        Terpasang: {part.installedKm?.toLocaleString('id-ID')} km
+                      </Paragraph>
+                      <Paragraph>
+                        Ganti pada: {part.replacementKm != null ? part.replacementKm.toLocaleString('id-ID') : ''} km
+                      </Paragraph>
+                      {kmRemaining != null && (
+                        kmRemaining <= 0 ? (
+                          <Chip icon="alert-circle" style={styles.urgentChip}>
+                            Perlu Diganti Segera
+                          </Chip>
+                        ) : kmRemaining <= 1000 ? (
+                          <Chip icon="alert" style={styles.urgentChip}>
+                            Sisa: {kmRemaining.toLocaleString('id-ID')} km
+                          </Chip>
+                        ) : (
+                          <Chip icon="information" style={styles.infoChip}>
+                            Sisa: {kmRemaining.toLocaleString('id-ID')} km
+                          </Chip>
+                        )
+                      )}
+                    </>
                   )}
                 </View>
               );
@@ -384,5 +403,11 @@ const styles = StyleSheet.create({
   unpaidChip: {
     marginTop: 8,
     backgroundColor: '#fff3e0',
+  },
+  partNotes: {
+    marginTop: 8,
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });
