@@ -4,9 +4,11 @@ import { Card, Title, Paragraph, FAB, Text, Chip, ActivityIndicator, IconButton 
 import { useFocusEffect } from '@react-navigation/native';
 import { getVehicles, deleteVehicle } from '../services/firebaseService';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const VehiclesScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -69,19 +71,23 @@ const VehiclesScreen = ({ navigation }) => {
 
   const renderVehicle = ({ item }) => (
     <Card 
-      style={styles.card}
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
       onPress={() => navigation.navigate('VehicleDetail', { vehicleId: item.id })}
     >
       <Card.Content>
         <View style={styles.cardHeader}>
           <View style={styles.cardContent}>
-            <Title>{item.brand} {item.model}</Title>
-            <Paragraph>Plat: {item.licensePlate}</Paragraph>
-            <Paragraph>Tahun: {item.year}</Paragraph>
-            <Paragraph>Kilometer: {item.currentMileage?.toLocaleString() || 0} km</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>{item.brand} {item.model}</Title>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Plat: {item.licensePlate}</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Tahun: {item.year}</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Kilometer: {item.currentMileage?.toLocaleString() || 0} km</Paragraph>
           </View>
           <View style={styles.actions}>
-            <Chip icon={item.type === 'motor' ? 'motorbike' : 'car'}>
+            <Chip 
+              icon={item.type === 'motor' ? 'motorbike' : 'car'}
+              style={{ backgroundColor: theme.colors.surfaceVariant }}
+              textStyle={{ color: theme.colors.onSurfaceVariant }}
+            >
               {item.type === 'motor' ? 'Motor' : 'Mobil'}
             </Chip>
             <IconButton
@@ -98,19 +104,19 @@ const VehiclesScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Memuat kendaraan...</Text>
+      <View style={[styles.centered, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Memuat kendaraan...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {vehicles.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>Belum ada kendaraan</Text>
-          <Text style={styles.emptySubtext}>Tap tombol + untuk menambahkan</Text>
+          <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>Belum ada kendaraan</Text>
+          <Text style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}>Tap tombol + untuk menambahkan</Text>
         </View>
       ) : (
         <FlatList
@@ -119,13 +125,13 @@ const VehiclesScreen = ({ navigation }) => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
           }
         />
       )}
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('AddVehicle')}
       />
     </View>
@@ -135,7 +141,6 @@ const VehiclesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   centered: {
     flex: 1,
@@ -145,16 +150,13 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
   },
   list: {
     padding: 16,

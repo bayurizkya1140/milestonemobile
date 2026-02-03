@@ -7,11 +7,14 @@ import { addTax, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatNumberWithDots, parseFormattedNumberToFloat } from '../utils/formatNumber';
 
 export default function AddTaxScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -55,7 +58,7 @@ export default function AddTaxScreen() {
         vehicleId: formData.vehicleId,
         type: formData.type,
         dueDate: Timestamp.fromDate(formData.dueDate),
-        amount: formData.amount ? parseFloat(formData.amount) : null,
+        amount: formData.amount ? parseFormattedNumberToFloat(formData.amount) : null,
         isPaid: formData.isPaid,
         notes: formData.notes || null,
       }, user.uid);
@@ -71,18 +74,19 @@ export default function AddTaxScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
-          <Title>Informasi Pajak</Title>
+          <Title style={{ color: theme.colors.onSurface }}>Informasi Pajak</Title>
           
           <View style={styles.pickerContainer}>
-            <Title style={styles.pickerLabel}>Kendaraan *</Title>
-            <View style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 4, marginBottom: 4 }}>
+            <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
+            <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>
               <Picker
                 selectedValue={formData.vehicleId}
                 onValueChange={(itemValue) => handleChange('vehicleId', itemValue)}
-                style={{ height: 55 }}
+                style={{ height: 55, color: theme.colors.onSurface }}
+                dropdownIconColor={theme.colors.onSurfaceVariant}
               >
                 <Picker.Item label="Pilih Kendaraan" value="" />
                 {vehicles.map((vehicle) => (
@@ -97,7 +101,7 @@ export default function AddTaxScreen() {
           </View>
 
           <View style={styles.pickerContainer}>
-            <Title style={styles.pickerLabel}>Jenis Pajak *</Title>
+            <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Jenis Pajak *</Title>
             <View style={styles.picker}>
               <Button
                 mode={formData.type === 'Pajak Tahunan' ? "contained" : "outlined"}
@@ -148,11 +152,11 @@ export default function AddTaxScreen() {
           <TextInput
             label="Jumlah Pajak"
             value={formData.amount}
-            onChangeText={(value) => handleChange('amount', value)}
+            onChangeText={(value) => handleChange('amount', formatNumberWithDots(value))}
             mode="outlined"
             keyboardType="numeric"
             style={styles.input}
-            placeholder="Contoh: 500000"
+            placeholder="Contoh: 500.000"
           />
 
           <View style={styles.checkboxContainer}>
@@ -199,7 +203,6 @@ export default function AddTaxScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   card: {
     margin: 16,

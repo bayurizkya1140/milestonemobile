@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, Text, SegmentedButtons, useTheme } from 'react-native-paper';
+import { TextInput, Button, Text, SegmentedButtons } from 'react-native-paper';
 import { addVehicle } from '../services/firebaseService';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatNumberWithDots, parseFormattedNumberToInt } from '../utils/formatNumber';
 
 const AddVehicleScreen = ({ navigation }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { user } = useAuth();
   
   const [vehicleType, setVehicleType] = useState('motor');
@@ -42,7 +44,7 @@ const AddVehicleScreen = ({ navigation }) => {
         model: model.trim(),
         year: yearNum,
         licensePlate: licensePlate.trim().toUpperCase(),
-        currentMileage: currentMileage ? parseInt(currentMileage) : 0,
+        currentMileage: parseFormattedNumberToInt(currentMileage),
       };
 
       console.log('Adding vehicle with userId:', user.uid);
@@ -63,9 +65,9 @@ const AddVehicleScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
-        <Text style={styles.label}>Jenis Kendaraan</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Jenis Kendaraan</Text>
         <SegmentedButtons
           value={vehicleType}
           onValueChange={setVehicleType}
@@ -118,11 +120,11 @@ const AddVehicleScreen = ({ navigation }) => {
         <TextInput
           label="Kilometer Saat Ini"
           value={currentMileage}
-          onChangeText={setCurrentMileage}
+          onChangeText={(text) => setCurrentMileage(formatNumberWithDots(text))}
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
-          placeholder="Contoh: 15000"
+          placeholder="Contoh: 15.000"
         />
 
         <Button
@@ -142,7 +144,6 @@ const AddVehicleScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   content: {
     padding: 16,
@@ -157,7 +158,6 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
-    backgroundColor: '#fff',
   },
   button: {
     marginTop: 8,

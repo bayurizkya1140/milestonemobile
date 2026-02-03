@@ -9,6 +9,8 @@ import { getTaxes } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatNumberWithDots, parseFormattedNumberToInt } from '../utils/formatNumber';
 
 // Helper function to format date from Firestore Timestamp
 const getFormattedDate = (timestamp) => {
@@ -25,6 +27,7 @@ export default function VehicleDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const { vehicleId } = route.params;
   const [vehicle, setVehicle] = useState(null);
   const [services, setServices] = useState([]);
@@ -44,7 +47,7 @@ export default function VehicleDetailScreen() {
       const vehicles = await getVehicles(user.uid);
       const vehicleData = vehicles.find(v => v.id === vehicleId);
       setVehicle(vehicleData);
-      setNewKm(vehicleData?.currentMileage?.toString() || '');
+      setNewKm(vehicleData?.currentMileage ? formatNumberWithDots(vehicleData.currentMileage) : '');
 
       const [servicesData, partsData, taxesData] = await Promise.all([
         getServices(user.uid, vehicleId),
@@ -63,13 +66,14 @@ export default function VehicleDetailScreen() {
   };
 
   const handleUpdateKm = async () => {
-    if (!newKm || isNaN(newKm)) {
+    const parsedKm = parseFormattedNumberToInt(newKm);
+    if (!newKm || parsedKm === 0) {
       Alert.alert('Error', 'Mohon masukkan kilometer yang valid');
       return;
     }
 
     try {
-      await updateVehicle(vehicleId, { currentMileage: parseInt(newKm) });
+      await updateVehicle(vehicleId, { currentMileage: parsedKm });
       setEditingKm(false);
       loadVehicleData();
       Alert.alert('Sukses', 'Kilometer berhasil diperbarui');
@@ -84,19 +88,19 @@ export default function VehicleDetailScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
-          <Title>{vehicle.brand} {vehicle.model}</Title>
-          <Paragraph>{vehicle.year} • {vehicle.licensePlate}</Paragraph>
-          {vehicle.color && <Paragraph>Warna: {vehicle.color}</Paragraph>}
+          <Title style={{ color: theme.colors.onSurface }}>{vehicle.brand} {vehicle.model}</Title>
+          <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{vehicle.year} • {vehicle.licensePlate}</Paragraph>
+          {vehicle.color && <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Warna: {vehicle.color}</Paragraph>}
           
-          <View style={styles.kmSection}>
+          <View style={[styles.kmSection, { backgroundColor: theme.colors.surfaceVariant }]}>
             <View style={styles.kmRow}>
-              <Paragraph style={styles.kmLabel}>Kilometer Saat Ini:</Paragraph>
+              <Paragraph style={[styles.kmLabel, { color: theme.colors.onSurface }]}>Kilometer Saat Ini:</Paragraph>
               {!editingKm ? (
                 <>
-                  <Paragraph style={styles.kmValue}>
+                  <Paragraph style={[styles.kmValue, { color: theme.colors.primary }]}>
                     {vehicle.currentMileage?.toLocaleString('id-ID') || 0} km
                   </Paragraph>
                   <Button onPress={() => setEditingKm(true)} compact>
@@ -107,10 +111,10 @@ export default function VehicleDetailScreen() {
                 <View style={styles.kmEditRow}>
                   <TextInput
                     value={newKm}
-                    onChangeText={setNewKm}
+                    onChangeText={(text) => setNewKm(formatNumberWithDots(text))}
                     keyboardType="numeric"
                     mode="outlined"
-                    style={styles.kmInput}
+                    style={[styles.kmInput, { backgroundColor: theme.colors.surface }]}
                   />
                   <Button onPress={handleUpdateKm} compact>Simpan</Button>
                   <Button onPress={() => setEditingKm(false)} compact>Batal</Button>
@@ -121,17 +125,17 @@ export default function VehicleDetailScreen() {
 
           {vehicle.notes && (
             <View style={styles.notesSection}>
-              <Paragraph style={styles.notesLabel}>Catatan:</Paragraph>
-              <Paragraph>{vehicle.notes}</Paragraph>
+              <Paragraph style={[styles.notesLabel, { color: theme.colors.onSurface }]}>Catatan:</Paragraph>
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{vehicle.notes}</Paragraph>
             </View>
           )}
         </Card.Content>
       </Card>
 
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
-            <Title>Servis Terakhir</Title>
+            <Title style={{ color: theme.colors.onSurface }}>Servis Terakhir</Title>
             <Button 
               mode="text" 
               onPress={() => navigation.navigate('Services', { screen: 'AddService', params: { vehicleId } })}
@@ -141,7 +145,7 @@ export default function VehicleDetailScreen() {
             </Button>
           </View>
           {services.length === 0 ? (
-            <Paragraph>Belum ada servis</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada servis</Paragraph>
           ) : (
             services.slice(0, 3).map((service) => {
               // Ambil kilometer saat servis, kilometer servis berikutnya, dan sisa kilometer
@@ -152,42 +156,42 @@ export default function VehicleDetailScreen() {
               const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
               const needsService = kmRemaining !== null && kmRemaining <= 0;
               return (
-                <View key={service.id} style={styles.item}>
-                  <Paragraph style={styles.itemTitle}>{service.serviceType}</Paragraph>
-                  <Paragraph>
+                <View key={service.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
+                  <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{service.serviceType}</Paragraph>
+                  <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                     {service.serviceDate 
                       ? format(service.serviceDate.toDate(), 'dd MMM yyyy', { locale: id })
                       : 'Tanggal tidak ditentukan'}
                   </Paragraph>
                   {kmSaatServis !== null && (
-                    <Paragraph>
+                    <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                       Kilometer saat servis: {kmSaatServis.toLocaleString('id-ID')} km
                     </Paragraph>
                   )}
                   {nextServiceKm !== null && (
-                    <Paragraph>
+                    <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                       Kilometer servis berikutnya: {nextServiceKm.toLocaleString('id-ID')} km
                     </Paragraph>
                   )}
                   {kmRemaining !== null && (
                     <View style={{marginTop: 4}}>
                       {needsService ? (
-                        <Chip icon="alert-circle" style={styles.urgentChip}>
+                        <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                           Sudah Lewat Servis
                         </Chip>
                       ) : urgent ? (
-                        <Chip icon="alert" style={styles.urgentChip}>
+                        <Chip icon="alert" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                           Kurang dari 300 km sebelum servis berikutnya!
                         </Chip>
                       ) : (
-                        <Chip icon="information" style={styles.infoChip}>
+                        <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
                           Sisa: {kmRemaining.toLocaleString('id-ID')} km
                         </Chip>
                       )}
                     </View>
                   )}
                   {service.nextServiceDate && (
-                    <Paragraph style={styles.nextService}>
+                    <Paragraph style={[styles.nextService, { color: theme.colors.onSurfaceVariant }]}>
                       Servis berikutnya: {getFormattedDate(service.nextServiceDate) || 'Tanggal tidak ditentukan'}
                     </Paragraph>
                   )}
@@ -198,10 +202,10 @@ export default function VehicleDetailScreen() {
         </Card.Content>
       </Card>
 
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
-            <Title>Parts & Komponen</Title>
+            <Title style={{ color: theme.colors.onSurface }}>Parts & Komponen</Title>
             <Button 
               mode="text" 
               onPress={() => navigation.navigate('Parts', { screen: 'AddPart', params: { vehicleId } })}
@@ -211,7 +215,7 @@ export default function VehicleDetailScreen() {
             </Button>
           </View>
           {parts.length === 0 ? (
-            <Paragraph>Belum ada parts</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada parts</Paragraph>
           ) : (
             parts.slice(0, 3).map((part) => {
               let kmRemaining = null;
@@ -226,38 +230,38 @@ export default function VehicleDetailScreen() {
               const isNeedsReplacement = part.needsReplacement === true;
               
               return (
-                <View key={part.id} style={styles.item}>
-                  <Paragraph style={styles.itemTitle}>{part.name}</Paragraph>
+                <View key={part.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
+                  <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{part.name}</Paragraph>
                   
                   {/* Tampilkan peringatan untuk part yang perlu diganti */}
                   {isNeedsReplacement ? (
                     <View>
-                      <Chip icon="alert-circle" style={styles.urgentChip}>
+                      <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                         Part Perlu Diganti!
                       </Chip>
                       {part.notes && (
-                        <Paragraph style={styles.partNotes}>Catatan: {part.notes}</Paragraph>
+                        <Paragraph style={[styles.partNotes, { color: theme.colors.onSurfaceVariant }]}>Catatan: {part.notes}</Paragraph>
                       )}
                     </View>
                   ) : (
                     <>
-                      <Paragraph>
+                      <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                         Terpasang: {part.installedKm?.toLocaleString('id-ID')} km
                       </Paragraph>
-                      <Paragraph>
+                      <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                         Ganti pada: {part.replacementKm != null ? part.replacementKm.toLocaleString('id-ID') : ''} km
                       </Paragraph>
                       {kmRemaining != null && (
                         kmRemaining <= 0 ? (
-                          <Chip icon="alert-circle" style={styles.urgentChip}>
+                          <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                             Perlu Diganti Segera
                           </Chip>
                         ) : kmRemaining <= 1000 ? (
-                          <Chip icon="alert" style={styles.urgentChip}>
+                          <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>
                             Sisa: {kmRemaining.toLocaleString('id-ID')} km
                           </Chip>
                         ) : (
-                          <Chip icon="information" style={styles.infoChip}>
+                          <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
                             Sisa: {kmRemaining.toLocaleString('id-ID')} km
                           </Chip>
                         )
@@ -271,10 +275,10 @@ export default function VehicleDetailScreen() {
         </Card.Content>
       </Card>
 
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
-            <Title>Pajak</Title>
+            <Title style={{ color: theme.colors.onSurface }}>Pajak</Title>
             <Button 
               mode="text" 
               onPress={() => navigation.navigate('Taxes', { screen: 'AddTax', params: { vehicleId } })}
@@ -284,7 +288,7 @@ export default function VehicleDetailScreen() {
             </Button>
           </View>
           {taxes.length === 0 ? (
-            <Paragraph>Belum ada data pajak</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada data pajak</Paragraph>
           ) : (
             taxes.slice(0, 3).map((tax) => {
               // Safe date parsing for tax
@@ -299,15 +303,15 @@ export default function VehicleDetailScreen() {
               };
               
               return (
-              <View key={tax.id} style={styles.item}>
-                <Paragraph style={styles.itemTitle}>{tax.type}</Paragraph>
-                <Paragraph>
+              <View key={tax.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
+                <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{tax.type}</Paragraph>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                   Jatuh Tempo: {getTaxFormattedDate(tax.dueDate) || 'Tanggal tidak ditentukan'}
                 </Paragraph>
                 {tax.isPaid ? (
-                  <Chip icon="check-circle" style={styles.paidChip}>Sudah Dibayar</Chip>
+                  <Chip icon="check-circle" style={{ backgroundColor: theme.colors.successChipBg }} textStyle={{ color: theme.colors.successChipText }}>Sudah Dibayar</Chip>
                 ) : (
-                  <Chip icon="alert" style={styles.unpaidChip}>Belum Dibayar</Chip>
+                  <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>Belum Dibayar</Chip>
                 )}
               </View>
             );
@@ -322,7 +326,6 @@ export default function VehicleDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   card: {
     margin: 16,
@@ -332,7 +335,6 @@ const styles = StyleSheet.create({
   kmSection: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: '#f0f0f0',
     borderRadius: 8,
   },
   kmRow: {
@@ -346,7 +348,6 @@ const styles = StyleSheet.create({
   kmValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2196F3',
   },
   kmEditRow: {
     flexDirection: 'row',
@@ -358,7 +359,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 80,
     marginRight: 8,
-    backgroundColor: '#fff',
   },
   notesSection: {
     marginTop: 16,
@@ -377,37 +377,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   itemTitle: {
     fontWeight: 'bold',
     marginBottom: 4,
   },
   nextService: {
-    color: '#666',
     fontSize: 12,
     marginTop: 4,
   },
   urgentChip: {
     marginTop: 8,
-    backgroundColor: '#ffebee',
   },
   infoChip: {
     marginTop: 8,
-    backgroundColor: '#e3f2fd',
   },
   paidChip: {
     marginTop: 8,
-    backgroundColor: '#e8f5e9',
   },
   unpaidChip: {
     marginTop: 8,
-    backgroundColor: '#fff3e0',
   },
   partNotes: {
     marginTop: 8,
     fontSize: 12,
-    color: '#666',
     fontStyle: 'italic',
   },
 });

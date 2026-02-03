@@ -7,11 +7,14 @@ import { addPart, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatNumberWithDots, parseFormattedNumberToInt } from '../utils/formatNumber';
 
 export default function AddPartScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -68,9 +71,9 @@ export default function AddPartScreen() {
 
       // Hanya tambahkan data kilometer dan tanggal jika bukan part yang perlu diganti
       if (!needsReplacement) {
-        partData.installedKm = parseInt(formData.installedKm);
+        partData.installedKm = parseFormattedNumberToInt(formData.installedKm);
         partData.installedAt = Timestamp.fromDate(formData.installedAt);
-        partData.replacementKm = parseInt(formData.replacementKm);
+        partData.replacementKm = parseFormattedNumberToInt(formData.replacementKm);
       }
 
       await addPart(partData, user.uid);
@@ -86,18 +89,19 @@ export default function AddPartScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
-          <Title>Informasi Part</Title>
+          <Title style={{ color: theme.colors.onSurface }}>Informasi Part</Title>
           
           <View style={styles.pickerContainer}>
-            <Title style={styles.pickerLabel}>Kendaraan *</Title>
-            <View style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 4, marginBottom: 4 }}>
+            <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
+            <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>
               <Picker
                 selectedValue={formData.vehicleId}
                 onValueChange={(itemValue) => handleChange('vehicleId', itemValue)}
-                style={{ height: 55 }}
+                style={{ height: 55, color: theme.colors.onSurface }}
+                dropdownIconColor={theme.colors.onSurfaceVariant}
               >
                 <Picker.Item label="Pilih Kendaraan" value="" />
                 {vehicles.map((vehicle) => (
@@ -120,17 +124,17 @@ export default function AddPartScreen() {
             placeholder="Contoh: Oli Mesin, Filter Udara, Ban, dll"
           />
 
-          <View style={styles.switchContainer}>
+          <View style={[styles.switchContainer, { backgroundColor: theme.colors.infoChipBg }]}>
             <View style={styles.switchTextContainer}>
-              <Text style={styles.switchLabel}>Part Perlu Diganti</Text>
-              <Text style={styles.switchDescription}>
+              <Text style={[styles.switchLabel, { color: theme.colors.infoChipText }]}>Part Perlu Diganti</Text>
+              <Text style={[styles.switchDescription, { color: theme.colors.onSurfaceVariant }]}>
                 Aktifkan jika part ini perlu diganti dan Anda tidak memiliki data kilometer
               </Text>
             </View>
             <Switch
               value={needsReplacement}
               onValueChange={setNeedsReplacement}
-              color="#2196F3"
+              color={theme.colors.primary}
             />
           </View>
 
@@ -139,21 +143,21 @@ export default function AddPartScreen() {
               <TextInput
                 label="Kilometer Terpasang *"
                 value={formData.installedKm}
-                onChangeText={(value) => handleChange('installedKm', value)}
+                onChangeText={(value) => handleChange('installedKm', formatNumberWithDots(value))}
                 mode="outlined"
                 keyboardType="numeric"
                 style={styles.input}
-                placeholder="Contoh: 10000"
+                placeholder="Contoh: 10.000"
               />
 
               <TextInput
                 label="Kilometer Penggantian *"
                 value={formData.replacementKm}
-                onChangeText={(value) => handleChange('replacementKm', value)}
+                onChangeText={(value) => handleChange('replacementKm', formatNumberWithDots(value))}
                 mode="outlined"
                 keyboardType="numeric"
                 style={styles.input}
-                placeholder="Contoh: 20000"
+                placeholder="Contoh: 20.000"
                 helperText="Part akan perlu diganti setelah mencapai kilometer ini"
               />
 
@@ -215,7 +219,6 @@ export default function AddPartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   card: {
     margin: 16,
@@ -249,7 +252,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#e3f2fd',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
@@ -261,11 +263,9 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1565c0',
   },
   switchDescription: {
     fontSize: 12,
-    color: '#666',
     marginTop: 4,
   },
 });

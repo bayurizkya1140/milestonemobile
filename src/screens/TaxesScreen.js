@@ -6,10 +6,12 @@ import { getTaxes, deleteTax, updateTax, getVehicles } from '../services/firebas
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function TaxesScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [taxes, setTaxes] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,14 +120,14 @@ export default function TaxesScreen() {
     const upcoming = !item.isPaid && isUpcoming(item.dueDate);
 
     return (
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.cardHeader}>
             <View style={styles.cardContent}>
-              <Title>{item.type}</Title>
-              <Paragraph>{getVehicleName(item.vehicleId)}</Paragraph>
+              <Title style={{ color: theme.colors.onSurface }}>{item.type}</Title>
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{getVehicleName(item.vehicleId)}</Paragraph>
               {item.dueDate && (
-                <Paragraph>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                   Jatuh Tempo: {(() => {
                     try {
                       const date = item.dueDate?.toDate ? item.dueDate.toDate() : new Date(item.dueDate);
@@ -137,31 +139,31 @@ export default function TaxesScreen() {
                 </Paragraph>
               )}
               {item.amount && (
-                <Paragraph style={styles.amount}>
+                <Paragraph style={[styles.amount, { color: theme.colors.primary }]}>
                   Jumlah: Rp {item.amount.toLocaleString('id-ID')}
                 </Paragraph>
               )}
               <View style={styles.statusRow}>
                 {item.isPaid ? (
-                  <Chip icon="check-circle" style={styles.paidChip}>
+                  <Chip icon="check-circle" style={{ backgroundColor: theme.colors.successChipBg }} textStyle={{ color: theme.colors.successChipText }}>
                     Sudah Dibayar
                   </Chip>
                 ) : overdue ? (
-                  <Chip icon="alert-circle" style={styles.overdueChip}>
+                  <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                     Terlambat
                   </Chip>
                 ) : upcoming ? (
-                  <Chip icon="alert" style={styles.upcomingChip}>
+                  <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>
                     Segera Jatuh Tempo
                   </Chip>
                 ) : (
-                  <Chip icon="clock-outline" style={styles.pendingChip}>
+                  <Chip icon="clock-outline" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
                     Belum Dibayar
                   </Chip>
                 )}
               </View>
               {item.notes && (
-                <Paragraph style={styles.notes}>{item.notes}</Paragraph>
+                <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
               )}
             </View>
             <View style={styles.actions}>
@@ -187,19 +189,19 @@ export default function TaxesScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <FlatList
         data={taxes}
         renderItem={renderTax}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
         }
         ListEmptyComponent={
-          <Card style={styles.emptyCard}>
+          <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
-              <Paragraph style={styles.emptyText}>
+              <Paragraph style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                 Belum ada data pajak. Tambahkan data pajak pertama Anda!
               </Paragraph>
             </Card.Content>
@@ -208,7 +210,7 @@ export default function TaxesScreen() {
       />
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('AddTax')}
       />
     </View>
@@ -218,7 +220,6 @@ export default function TaxesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   list: {
     padding: 16,
@@ -239,26 +240,20 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   paidChip: {
-    backgroundColor: '#e8f5e9',
   },
   overdueChip: {
-    backgroundColor: '#ffebee',
   },
   upcomingChip: {
-    backgroundColor: '#fff3e0',
   },
   pendingChip: {
-    backgroundColor: '#e3f2fd',
   },
   amount: {
     marginTop: 8,
     fontWeight: 'bold',
-    color: '#2196F3',
   },
   notes: {
     marginTop: 8,
     fontStyle: 'italic',
-    color: '#666',
   },
   actions: {
     flexDirection: 'column',
@@ -268,13 +263,11 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#2196F3',
   },
   emptyCard: {
     marginTop: 32,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
   },
 });

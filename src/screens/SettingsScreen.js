@@ -61,7 +61,7 @@ export default function SettingsScreen() {
           
           <View style={styles.aboutItem}>
             <Text style={[styles.aboutLabel, { color: theme.colors.onSurfaceVariant }]}>Versi</Text>
-            <Text style={[styles.aboutValue, { color: theme.colors.onSurface }]}>1.0.0</Text>
+            <Text style={[styles.aboutValue, { color: theme.colors.onSurface }]}>1.1.0</Text>
           </View>
           
           <View style={styles.aboutItem}>

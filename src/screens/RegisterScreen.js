@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Card, Title, Text, HelperText } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function RegisterScreen({ navigation }) {
   const { register, error, clearError } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -64,7 +66,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView 
@@ -72,13 +74,13 @@ export default function RegisterScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoContainer}>
-          <Title style={styles.appTitle}>🚗 Milestone</Title>
-          <Text style={styles.tagline}>Buat akun baru</Text>
+          <Title style={[styles.appTitle, { color: theme.colors.primary }]}>🚗 Milestone</Title>
+          <Text style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}>Buat akun baru</Text>
         </View>
 
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title style={styles.cardTitle}>Daftar</Title>
+            <Title style={[styles.cardTitle, { color: theme.colors.onSurface }]}>Daftar</Title>
             
             <TextInput
               label="Email"
@@ -161,7 +163,7 @@ export default function RegisterScreen({ navigation }) {
         </Card>
 
         <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Sudah punya akun?</Text>
+          <Text style={[styles.loginText, { color: theme.colors.onSurfaceVariant }]}>Sudah punya akun?</Text>
           <Button
             mode="outlined"
             onPress={() => navigation.navigate('Login')}
@@ -178,7 +180,6 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   scrollContent: {
     flexGrow: 1,
@@ -192,11 +193,9 @@ const styles = StyleSheet.create({
   appTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#2196F3',
   },
   tagline: {
     fontSize: 14,
-    color: '#666',
     marginTop: 8,
   },
   card: {
@@ -225,7 +224,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   loginText: {
-    color: '#666',
     marginBottom: 8,
   },
   loginButton: {

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Card, Title, Text, HelperText } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const { forgotPassword, error, clearError } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -52,7 +54,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView 
@@ -61,14 +63,14 @@ export default function ForgotPasswordScreen({ navigation }) {
       >
         <View style={styles.logoContainer}>
           <Title style={styles.appTitle}>🔐</Title>
-          <Text style={styles.tagline}>Reset Password</Text>
+          <Text style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}>Reset Password</Text>
         </View>
 
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title style={styles.cardTitle}>Lupa Password?</Title>
+            <Title style={[styles.cardTitle, { color: theme.colors.onSurface }]}>Lupa Password?</Title>
             
-            <Text style={styles.description}>
+            <Text style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
               Masukkan alamat email yang terdaftar. Kami akan mengirimkan link untuk mereset password Anda.
             </Text>
             
@@ -130,7 +132,6 @@ export default function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   scrollContent: {
     flexGrow: 1,
@@ -146,7 +147,6 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 18,
-    color: '#666',
     marginTop: 8,
     fontWeight: '600',
   },
@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
   },
   description: {
     textAlign: 'center',
-    color: '#666',
     marginBottom: 16,
     lineHeight: 20,
   },

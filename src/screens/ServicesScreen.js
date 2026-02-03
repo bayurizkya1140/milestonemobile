@@ -6,10 +6,12 @@ import { getServices, deleteService, getVehicles } from '../services/firebaseSer
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function ServicesScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [services, setServices] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,14 +113,14 @@ export default function ServicesScreen() {
     const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
     const needsService = kmRemaining !== null && kmRemaining <= 0;
     return (
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.cardHeader}>
             <View style={styles.cardContent}>
-              <Title>{item.serviceType}</Title>
-              <Paragraph>{getVehicleName(item.vehicleId)}</Paragraph>
+              <Title style={{ color: theme.colors.onSurface }}>{item.serviceType}</Title>
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{getVehicleName(item.vehicleId)}</Paragraph>
               {item.serviceDate && (
-                <Paragraph>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                   Tanggal: {(() => {
                     try {
                       const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
@@ -130,34 +132,34 @@ export default function ServicesScreen() {
                 </Paragraph>
               )}
               {item.nextServiceKm && (
-                <Paragraph>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
                   Kilometer servis berikutnya: {item.nextServiceKm.toLocaleString('id-ID')} km
                 </Paragraph>
               )}
               {kmRemaining !== null && (
                 <View style={styles.statusRow}>
                   {needsService ? (
-                    <Chip icon="alert-circle" style={styles.urgentChip}>
+                    <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                       Sudah Lewat Servis
                     </Chip>
                   ) : urgent ? (
-                    <Chip icon="alert" style={styles.urgentChip}>
+                    <Chip icon="alert" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
                       Kurang dari 300 km sebelum servis berikutnya!
                     </Chip>
                   ) : (
-                    <Chip icon="information" style={styles.infoChip}>
+                    <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
                       Sisa: {kmRemaining.toLocaleString('id-ID')} km
                     </Chip>
                   )}
                 </View>
               )}
               {item.cost && (
-                <Paragraph style={styles.cost}>
+                <Paragraph style={[styles.cost, { color: theme.colors.primary }]}>
                   Biaya: Rp {item.cost.toLocaleString('id-ID')}
                 </Paragraph>
               )}
               {item.notes && (
-                <Paragraph style={styles.notes}>{item.notes}</Paragraph>
+                <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
               )}
             </View>
             <IconButton
@@ -173,19 +175,19 @@ export default function ServicesScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <FlatList
         data={services}
         renderItem={renderService}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
         }
         ListEmptyComponent={
-          <Card style={styles.emptyCard}>
+          <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
-              <Paragraph style={styles.emptyText}>
+              <Paragraph style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                 Belum ada servis. Tambahkan servis pertama Anda!
               </Paragraph>
             </Card.Content>
@@ -194,7 +196,7 @@ export default function ServicesScreen() {
       />
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('AddService')}
       />
     </View>
@@ -204,7 +206,6 @@ export default function ServicesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   list: {
     padding: 16,
@@ -225,10 +226,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   urgentChip: {
-    backgroundColor: '#ffebee',
   },
   infoChip: {
-    backgroundColor: '#e3f2fd',
   },
   nextServiceRow: {
     flexDirection: 'row',
@@ -237,30 +236,25 @@ const styles = StyleSheet.create({
   },
   upcomingChip: {
     marginLeft: 8,
-    backgroundColor: '#fff3e0',
   },
   cost: {
     marginTop: 8,
     fontWeight: 'bold',
-    color: '#2196F3',
   },
   notes: {
     marginTop: 8,
     fontStyle: 'italic',
-    color: '#666',
   },
   fab: {
     position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#2196F3',
   },
   emptyCard: {
     marginTop: 32,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
   },
 });

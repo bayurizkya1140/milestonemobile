@@ -8,11 +8,14 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { formatNumberWithDots, parseFormattedNumberToInt, parseFormattedNumberToFloat } from '../utils/formatNumber';
 
 export default function AddServiceScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
   
   const [loading, setLoading] = useState(false);
@@ -60,7 +63,7 @@ export default function AddServiceScreen() {
         vehicleId: formData.vehicleId,
         serviceType: formData.serviceType,
         serviceDate: Timestamp.fromDate(formData.serviceDate),
-        cost: formData.cost ? parseFloat(formData.cost) : null,
+        cost: formData.cost ? parseFormattedNumberToFloat(formData.cost) : null,
         notes: formData.notes || null,
       };
 
@@ -69,7 +72,7 @@ export default function AddServiceScreen() {
       }
 
       if (formData.nextServiceKm) {
-        serviceData.nextServiceKm = parseInt(formData.nextServiceKm);
+        serviceData.nextServiceKm = parseFormattedNumberToInt(formData.nextServiceKm);
       }
 
       await addService(serviceData, user.uid);
@@ -91,21 +94,22 @@ export default function AddServiceScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
-          <Title>Informasi Servis</Title>
+          <Title style={{ color: theme.colors.onSurface }}>Informasi Servis</Title>
           
           <View style={styles.pickerContainer}>
-            <Title style={styles.pickerLabel}>Kendaraan *</Title>
-            <View style={{ borderWidth: 1, borderColor: vehicleError ? 'red' : '#ccc', borderRadius: 4, marginBottom: 4 }}>
+            <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
+            <View style={{ borderWidth: 1, borderColor: vehicleError ? 'red' : theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>
               <Picker
                 selectedValue={formData.vehicleId}
                 onValueChange={(itemValue) => {
                   handleChange('vehicleId', itemValue);
                   setVehicleError(false);
                 }}
-                style={{ height: 55 }}
+                style={{ height: 55, color: theme.colors.onSurface }}
+                dropdownIconColor={theme.colors.onSurfaceVariant}
               >
                 <Picker.Item label="Pilih Kendaraan" value="" />
                 {vehicles.map((vehicle) => (
@@ -198,21 +202,21 @@ export default function AddServiceScreen() {
           <TextInput
             label="Servis Berikutnya pada Kilometer"
             value={formData.nextServiceKm}
-            onChangeText={(value) => handleChange('nextServiceKm', value)}
+            onChangeText={(value) => handleChange('nextServiceKm', formatNumberWithDots(value))}
             mode="outlined"
             keyboardType="numeric"
             style={styles.input}
-            placeholder="Contoh: 50000"
+            placeholder="Contoh: 50.000"
           />
 
           <TextInput
             label="Biaya"
             value={formData.cost}
-            onChangeText={(value) => handleChange('cost', value)}
+            onChangeText={(value) => handleChange('cost', formatNumberWithDots(value))}
             mode="outlined"
             keyboardType="numeric"
             style={styles.input}
-            placeholder="Contoh: 500000"
+            placeholder="Contoh: 500.000"
           />
 
           <TextInput
@@ -242,7 +246,6 @@ export default function AddServiceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   card: {
     margin: 16,

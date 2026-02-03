@@ -4,10 +4,12 @@ import { Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getVehicles, getServices, getParts, getTaxes } from '../services/firebaseService';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function DashboardScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const [vehicles, setVehicles] = useState([]);
   const [upcomingServices, setUpcomingServices] = useState([]);
   const [partsToReplace, setPartsToReplace] = useState([]);
@@ -110,15 +112,15 @@ export default function DashboardScreen() {
   }, [vehicles]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Title style={styles.welcomeText}>Selamat Datang!</Title>
+        <Title style={[styles.welcomeText, { color: theme.colors.onSurface }]}>Selamat Datang!</Title>
         <View style={styles.headerButtons}>
           <IconButton
             icon="cog"
             size={24}
             onPress={() => navigation.navigate('Settings')}
-            iconColor="#666"
+            iconColor={theme.colors.onSurfaceVariant}
           />
           <IconButton
             icon="logout"
@@ -130,37 +132,37 @@ export default function DashboardScreen() {
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Vehicles')}>
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title>Total Kendaraan</Title>
-            <Paragraph style={styles.bigNumber}>{vehicles.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>Total Kendaraan</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{vehicles.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Services')}>
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title>Servis Mendatang</Title>
-            <Paragraph style={styles.bigNumber}>{upcomingServices.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>Servis Mendatang</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{upcomingServices.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Parts')}>
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title>Parts Perlu Diganti</Title>
-            <Paragraph style={styles.bigNumber}>{partsToReplace.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>Parts Perlu Diganti</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{partsToReplace.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Taxes')}>
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title>Pajak Mendatang</Title>
-            <Paragraph style={styles.bigNumber}>{upcomingTaxes.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>Pajak Mendatang</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{upcomingTaxes.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
@@ -172,7 +174,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
@@ -194,7 +195,6 @@ const styles = StyleSheet.create({
   bigNumber: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#2196F3',
     paddingTop: 10,
     lineHeight: 50,
   },
