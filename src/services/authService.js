@@ -58,7 +58,7 @@ const parseFirebaseError = (error) => {
     'WEAK_PASSWORD': 'Password terlalu lemah (minimal 6 karakter)',
     'INVALID_LOGIN_CREDENTIALS': 'Email atau password salah',
   };
-  
+
   return errorMessages[error] || error || 'Terjadi kesalahan';
 };
 
@@ -175,7 +175,7 @@ export const resetPassword = async (email) => {
 export const refreshToken = async () => {
   try {
     const storedRefreshToken = await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
-    
+
     if (!storedRefreshToken) {
       return null;
     }
@@ -235,21 +235,21 @@ export const getCurrentUser = () => {
 
 export const subscribeToAuthChanges = (callback) => {
   authListeners.push(callback);
-  
+
   // Return unsubscribe function
   return () => {
     authListeners = authListeners.filter(listener => listener !== callback);
   };
 };
 
-export const initializeAuth = async () => {
+export const initializeAppAuth = async () => {
   try {
     const userJson = await AsyncStorage.getItem(USER_KEY);
     const expiry = await AsyncStorage.getItem(EXPIRY_KEY);
-    
+
     if (userJson) {
       const user = JSON.parse(userJson);
-      
+
       // Check if token needs refresh
       if (expiry && Date.now() > (parseInt(expiry) - 300000)) {
         const newToken = await refreshToken();
@@ -259,7 +259,7 @@ export const initializeAuth = async () => {
           return null;
         }
       }
-      
+
       notifyListeners(user);
       return user;
     } else {

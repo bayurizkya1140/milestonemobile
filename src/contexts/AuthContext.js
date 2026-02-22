@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  subscribeToAuthChanges, 
-  signIn, 
-  signUp, 
-  signOut, 
+import {
+  subscribeToAuthChanges,
+  signIn,
+  signUp,
+  signOut,
   resetPassword,
-  initializeAuth 
+  initializeAppAuth
 } from '../services/authService';
 
 const AuthContext = createContext({});
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     // Subscribe to auth changes
     const unsubscribe = subscribeToAuthChanges((authUser) => {
       if (isMounted) {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Initialize auth (check stored session)
-    initializeAuth();
+    initializeAppAuth();
 
     return () => {
       isMounted = false;
