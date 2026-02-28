@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addPart, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Timestamp } from 'firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatNumberWithDots, parseFormattedNumberToInt } from '../utils/formatNumber';
@@ -16,7 +16,7 @@ export default function AddPartScreen() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
-  
+
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [formData, setFormData] = useState({
@@ -61,7 +61,7 @@ export default function AddPartScreen() {
 
     try {
       setLoading(true);
-      
+
       const partData = {
         vehicleId: formData.vehicleId,
         name: formData.name,
@@ -72,7 +72,7 @@ export default function AddPartScreen() {
       // Hanya tambahkan data kilometer dan tanggal jika bukan part yang perlu diganti
       if (!needsReplacement) {
         partData.installedKm = parseFormattedNumberToInt(formData.installedKm);
-        partData.installedAt = Timestamp.fromDate(formData.installedAt);
+        partData.installedAt = firestore.Timestamp.fromDate(formData.installedAt);
         partData.replacementKm = parseFormattedNumberToInt(formData.replacementKm);
       }
 
@@ -93,7 +93,7 @@ export default function AddPartScreen() {
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <Title style={{ color: theme.colors.onSurface }}>Informasi Part</Title>
-          
+
           <View style={styles.pickerContainer}>
             <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
             <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>

@@ -1,17 +1,5 @@
 import { db } from '../../firebase.config';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  serverTimestamp,
-  getDoc
-} from 'firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 
 // ============ VEHICLES ============
 export const addVehicle = async (vehicleData, userId) => {
@@ -19,11 +7,11 @@ export const addVehicle = async (vehicleData, userId) => {
     if (!userId) {
       throw new Error('User ID is required');
     }
-    const docRef = await addDoc(collection(db, 'vehicles'), {
+    const docRef = await db.collection('vehicles').add({
       ...vehicleData,
       userId: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     console.log('Vehicle added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
@@ -40,12 +28,10 @@ export const getVehicles = async (userId) => {
       return [];
     }
     console.log('Fetching vehicles for userId:', userId);
-    const q = query(
-      collection(db, 'vehicles'), 
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection('vehicles')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .get();
     const vehicles = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -60,9 +46,8 @@ export const getVehicles = async (userId) => {
 
 export const getVehicleById = async (vehicleId) => {
   try {
-    const docRef = doc(db, 'vehicles', vehicleId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
+    const docSnap = await db.collection('vehicles').doc(vehicleId).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
@@ -74,10 +59,9 @@ export const getVehicleById = async (vehicleId) => {
 
 export const updateVehicle = async (vehicleId, vehicleData) => {
   try {
-    const docRef = doc(db, 'vehicles', vehicleId);
-    await updateDoc(docRef, {
+    await db.collection('vehicles').doc(vehicleId).update({
       ...vehicleData,
-      updatedAt: serverTimestamp()
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     return true;
   } catch (error) {
@@ -88,7 +72,7 @@ export const updateVehicle = async (vehicleId, vehicleData) => {
 
 export const deleteVehicle = async (vehicleId) => {
   try {
-    await deleteDoc(doc(db, 'vehicles', vehicleId));
+    await db.collection('vehicles').doc(vehicleId).delete();
     return true;
   } catch (error) {
     console.error('Error deleting vehicle:', error);
@@ -102,11 +86,11 @@ export const addService = async (serviceData, userId) => {
     if (!userId) {
       throw new Error('User ID is required');
     }
-    const docRef = await addDoc(collection(db, 'services'), {
+    const docRef = await db.collection('services').add({
       ...serviceData,
       userId: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     console.log('Service added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
@@ -122,22 +106,12 @@ export const getServices = async (userId, vehicleId = null) => {
       console.log('No userId provided, returning empty array');
       return [];
     }
-    let q;
+    let query = db.collection('services').where('userId', '==', userId);
     if (vehicleId) {
-      q = query(
-        collection(db, 'services'),
-        where('userId', '==', userId),
-        where('vehicleId', '==', vehicleId),
-        orderBy('serviceDate', 'desc')
-      );
-    } else {
-      q = query(
-        collection(db, 'services'),
-        where('userId', '==', userId),
-        orderBy('serviceDate', 'desc')
-      );
+      query = query.where('vehicleId', '==', vehicleId);
     }
-    const querySnapshot = await getDocs(q);
+    query = query.orderBy('serviceDate', 'desc');
+    const querySnapshot = await query.get();
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -150,10 +124,9 @@ export const getServices = async (userId, vehicleId = null) => {
 
 export const updateService = async (serviceId, serviceData) => {
   try {
-    const docRef = doc(db, 'services', serviceId);
-    await updateDoc(docRef, {
+    await db.collection('services').doc(serviceId).update({
       ...serviceData,
-      updatedAt: serverTimestamp()
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     return true;
   } catch (error) {
@@ -164,7 +137,7 @@ export const updateService = async (serviceId, serviceData) => {
 
 export const deleteService = async (serviceId) => {
   try {
-    await deleteDoc(doc(db, 'services', serviceId));
+    await db.collection('services').doc(serviceId).delete();
     return true;
   } catch (error) {
     console.error('Error deleting service:', error);
@@ -178,11 +151,11 @@ export const addPart = async (partData, userId) => {
     if (!userId) {
       throw new Error('User ID is required');
     }
-    const docRef = await addDoc(collection(db, 'parts'), {
+    const docRef = await db.collection('parts').add({
       ...partData,
       userId: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     console.log('Part added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
@@ -198,20 +171,11 @@ export const getParts = async (userId, vehicleId = null) => {
       console.log('No userId provided, returning empty array');
       return [];
     }
-    let q;
+    let query = db.collection('parts').where('userId', '==', userId);
     if (vehicleId) {
-      q = query(
-        collection(db, 'parts'),
-        where('userId', '==', userId),
-        where('vehicleId', '==', vehicleId)
-      );
-    } else {
-      q = query(
-        collection(db, 'parts'),
-        where('userId', '==', userId)
-      );
+      query = query.where('vehicleId', '==', vehicleId);
     }
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await query.get();
     const parts = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -230,10 +194,9 @@ export const getParts = async (userId, vehicleId = null) => {
 
 export const updatePart = async (partId, partData) => {
   try {
-    const docRef = doc(db, 'parts', partId);
-    await updateDoc(docRef, {
+    await db.collection('parts').doc(partId).update({
       ...partData,
-      updatedAt: serverTimestamp()
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     return true;
   } catch (error) {
@@ -244,7 +207,7 @@ export const updatePart = async (partId, partData) => {
 
 export const deletePart = async (partId) => {
   try {
-    await deleteDoc(doc(db, 'parts', partId));
+    await db.collection('parts').doc(partId).delete();
     return true;
   } catch (error) {
     console.error('Error deleting part:', error);
@@ -258,11 +221,11 @@ export const addTax = async (taxData, userId) => {
     if (!userId) {
       throw new Error('User ID is required');
     }
-    const docRef = await addDoc(collection(db, 'taxes'), {
+    const docRef = await db.collection('taxes').add({
       ...taxData,
       userId: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     console.log('Tax added with ID:', docRef.id, 'for user:', userId);
     return docRef.id;
@@ -278,22 +241,12 @@ export const getTaxes = async (userId, vehicleId = null) => {
       console.log('No userId provided, returning empty array');
       return [];
     }
-    let q;
+    let query = db.collection('taxes').where('userId', '==', userId);
     if (vehicleId) {
-      q = query(
-        collection(db, 'taxes'),
-        where('userId', '==', userId),
-        where('vehicleId', '==', vehicleId),
-        orderBy('dueDate', 'asc')
-      );
-    } else {
-      q = query(
-        collection(db, 'taxes'),
-        where('userId', '==', userId),
-        orderBy('dueDate', 'asc')
-      );
+      query = query.where('vehicleId', '==', vehicleId);
     }
-    const querySnapshot = await getDocs(q);
+    query = query.orderBy('dueDate', 'asc');
+    const querySnapshot = await query.get();
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -306,10 +259,9 @@ export const getTaxes = async (userId, vehicleId = null) => {
 
 export const updateTax = async (taxId, taxData) => {
   try {
-    const docRef = doc(db, 'taxes', taxId);
-    await updateDoc(docRef, {
+    await db.collection('taxes').doc(taxId).update({
       ...taxData,
-      updatedAt: serverTimestamp()
+      updatedAt: firestore.FieldValue.serverTimestamp()
     });
     return true;
   } catch (error) {
@@ -320,7 +272,7 @@ export const updateTax = async (taxId, taxData) => {
 
 export const deleteTax = async (taxId) => {
   try {
-    await deleteDoc(doc(db, 'taxes', taxId));
+    await db.collection('taxes').doc(taxId).delete();
     return true;
   } catch (error) {
     console.error('Error deleting tax:', error);

@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addTax, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Timestamp } from 'firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatNumberWithDots, parseFormattedNumberToFloat } from '../utils/formatNumber';
@@ -16,7 +16,7 @@ export default function AddTaxScreen() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
-  
+
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [formData, setFormData] = useState({
@@ -57,7 +57,7 @@ export default function AddTaxScreen() {
       await addTax({
         vehicleId: formData.vehicleId,
         type: formData.type,
-        dueDate: Timestamp.fromDate(formData.dueDate),
+        dueDate: firestore.Timestamp.fromDate(formData.dueDate),
         amount: formData.amount ? parseFormattedNumberToFloat(formData.amount) : null,
         isPaid: formData.isPaid,
         notes: formData.notes || null,
@@ -78,7 +78,7 @@ export default function AddTaxScreen() {
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <Title style={{ color: theme.colors.onSurface }}>Informasi Pajak</Title>
-          
+
           <View style={styles.pickerContainer}>
             <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
             <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>

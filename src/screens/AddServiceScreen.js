@@ -6,7 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { addService, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
-import { Timestamp } from 'firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatNumberWithDots, parseFormattedNumberToInt, parseFormattedNumberToFloat } from '../utils/formatNumber';
@@ -17,7 +17,7 @@ export default function AddServiceScreen() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const vehicleIdFromRoute = route.params?.vehicleId;
-  
+
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [formData, setFormData] = useState({
@@ -62,13 +62,13 @@ export default function AddServiceScreen() {
       const serviceData = {
         vehicleId: formData.vehicleId,
         serviceType: formData.serviceType,
-        serviceDate: Timestamp.fromDate(formData.serviceDate),
+        serviceDate: firestore.Timestamp.fromDate(formData.serviceDate),
         cost: formData.cost ? parseFormattedNumberToFloat(formData.cost) : null,
         notes: formData.notes || null,
       };
 
       if (formData.nextServiceDate) {
-        serviceData.nextServiceDate = Timestamp.fromDate(formData.nextServiceDate);
+        serviceData.nextServiceDate = firestore.Timestamp.fromDate(formData.nextServiceDate);
       }
 
       if (formData.nextServiceKm) {
@@ -77,8 +77,8 @@ export default function AddServiceScreen() {
 
       await addService(serviceData, user.uid);
       Alert.alert('Sukses', 'Servis berhasil ditambahkan', [
-        { 
-          text: 'OK', 
+        {
+          text: 'OK',
           onPress: () => {
             // Go back - ServicesScreen akan auto refresh karena ada focus listener
             navigation.goBack();
@@ -98,7 +98,7 @@ export default function AddServiceScreen() {
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <Title style={{ color: theme.colors.onSurface }}>Informasi Servis</Title>
-          
+
           <View style={styles.pickerContainer}>
             <Title style={[styles.pickerLabel, { color: theme.colors.onSurface }]}>Kendaraan *</Title>
             <View style={{ borderWidth: 1, borderColor: vehicleError ? 'red' : theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>
@@ -173,7 +173,7 @@ export default function AddServiceScreen() {
             onPress={() => setShowNextServiceDatePicker(true)}
             style={styles.dateButton}
           >
-            Servis Berikutnya: {formData.nextServiceDate 
+            Servis Berikutnya: {formData.nextServiceDate
               ? formData.nextServiceDate.toLocaleDateString('id-ID')
               : 'Pilih Tanggal (Opsional)'}
           </Button>
