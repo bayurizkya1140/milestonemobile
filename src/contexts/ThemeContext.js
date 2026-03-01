@@ -1,32 +1,39 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
+import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 
 const THEME_STORAGE_KEY = '@milestone_theme_preference';
 
-// Custom light theme
+const fontConfig = {
+  fontFamily: 'SpaceGrotesk_400Regular',
+};
+
+const customFonts = configureFonts({ config: fontConfig });
+
 const CustomLightTheme = {
   ...MD3LightTheme,
   dark: false,
+  roundness: 8,
+  fonts: customFonts,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#2196F3',
-    background: '#f5f5f5',
-    surface: '#ffffff',
-    surfaceVariant: '#f0f0f0',
-    onSurface: '#1a1a1a',
-    onSurfaceVariant: '#666666',
-    outline: '#cccccc',
+    primary: '#1F4E34',
+    background: '#F9F8F4',
+    surface: '#FFFFFF',
+    surfaceVariant: '#EBEBEB',
+    onSurface: '#1A1A1A',
+    onSurfaceVariant: '#555555',
+    outline: '#E0E0E0',
     // Custom colors for chips
-    urgentChipBg: '#ffebee',
-    urgentChipText: '#c62828',
-    infoChipBg: '#e3f2fd',
-    infoChipText: '#1565c0',
-    successChipBg: '#e8f5e9',
-    successChipText: '#2e7d32',
-    warningChipBg: '#fff3e0',
-    warningChipText: '#e65100',
+    urgentChipBg: '#FFEBEA',
+    urgentChipText: '#C62828',
+    infoChipBg: '#E3F2FD',
+    infoChipText: '#1565C0',
+    successChipBg: '#D1E6DA',
+    successChipText: '#1F4E34',
+    warningChipBg: '#FFF3E0',
+    warningChipText: '#E65100',
   },
 };
 
@@ -34,24 +41,26 @@ const CustomLightTheme = {
 const CustomDarkTheme = {
   ...MD3DarkTheme,
   dark: true,
+  roundness: 8,
+  fonts: customFonts,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#64B5F6',
+    primary: '#2E7A52', // Lighter green for dark mode visibility
     background: '#121212',
-    surface: '#1e1e1e',
-    surfaceVariant: '#2d2d2d',
-    onSurface: '#e0e0e0',
-    onSurfaceVariant: '#aaaaaa',
+    surface: '#1E1E1E',
+    surfaceVariant: '#2D2D2D',
+    onSurface: '#E0E0E0',
+    onSurfaceVariant: '#AAAAAA',
     outline: '#444444',
     // Custom colors for chips
-    urgentChipBg: '#4a1c1c',
-    urgentChipText: '#ff8a80',
-    infoChipBg: '#1a3a5c',
-    infoChipText: '#90caf9',
-    successChipBg: '#1b4332',
-    successChipText: '#95d5b2',
-    warningChipBg: '#4a3c1c',
-    warningChipText: '#ffcc80',
+    urgentChipBg: '#4A1C1C',
+    urgentChipText: '#FF8A80',
+    infoChipBg: '#1A3A5C',
+    infoChipText: '#90CAF9',
+    successChipBg: '#153A26',
+    successChipText: '#A1D9B8',
+    warningChipBg: '#4A3C1C',
+    warningChipText: '#FFCC80',
   },
 };
 

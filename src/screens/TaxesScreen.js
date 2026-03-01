@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Alert, Text } from 'react-native';
 import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getTaxes, deleteTax, updateTax, getVehicles } from '../services/firebaseService';
@@ -120,68 +120,62 @@ export default function TaxesScreen() {
     const upcoming = !item.isPaid && isUpcoming(item.dueDate);
 
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
-          <View style={styles.cardHeader}>
-            <View style={styles.cardContent}>
-              <Title style={{ color: theme.colors.onSurface }}>{item.type}</Title>
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{getVehicleName(item.vehicleId)}</Paragraph>
-              {item.dueDate && (
-                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                  Jatuh Tempo: {(() => {
-                    try {
-                      const date = item.dueDate?.toDate ? item.dueDate.toDate() : new Date(item.dueDate);
-                      return format(date, 'dd MMM yyyy', { locale: id });
-                    } catch (e) {
-                      return 'Tanggal tidak valid';
-                    }
-                  })()}
-                </Paragraph>
-              )}
-              {item.amount && (
-                <Paragraph style={[styles.amount, { color: theme.colors.primary }]}>
-                  Jumlah: Rp {item.amount.toLocaleString('id-ID')}
-                </Paragraph>
-              )}
-              <View style={styles.statusRow}>
-                {item.isPaid ? (
-                  <Chip icon="check-circle" style={{ backgroundColor: theme.colors.successChipBg }} textStyle={{ color: theme.colors.successChipText }}>
-                    Sudah Dibayar
-                  </Chip>
-                ) : overdue ? (
-                  <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                    Terlambat
-                  </Chip>
-                ) : upcoming ? (
-                  <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>
-                    Segera Jatuh Tempo
-                  </Chip>
-                ) : (
-                  <Chip icon="clock-outline" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
-                    Belum Dibayar
-                  </Chip>
-                )}
-              </View>
-              {item.notes && (
-                <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
+        <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0 }}>{item.type}</Title>
+          <View style={{ flexDirection: 'row' }}>
+            {!item.isPaid && (
+              <IconButton icon="check-circle" size={20} iconColor="#4caf50" style={{ margin: 0, marginRight: 8 }} onPress={() => handleMarkAsPaid(item.id)} />
+            )}
+            <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+          </View>
+        </View>
+        <Card.Content style={{ paddingTop: 16 }}>
+          <View style={styles.cardContent}>
+            <Paragraph style={{ color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 16, marginBottom: 0 }}>{getVehicleName(item.vehicleId)}</Paragraph>
+
+            {item.dueDate && (
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
+                Jatuh Tempo: {(() => {
+                  try {
+                    const date = item.dueDate?.toDate ? item.dueDate.toDate() : new Date(item.dueDate);
+                    return format(date, 'dd MMM yyyy', { locale: id });
+                  } catch (e) {
+                    return 'Tanggal tidak valid';
+                  }
+                })()}
+              </Paragraph>
+            )}
+
+            {item.amount && (
+              <Paragraph style={[styles.amount, { color: theme.colors.onSurface, marginTop: 4 }]}>
+                Jumlah: <Text style={{ fontWeight: 'bold' }}>Rp {item.amount.toLocaleString('id-ID')}</Text>
+              </Paragraph>
+            )}
+
+            <View style={styles.statusRow}>
+              {item.isPaid ? (
+                <Chip icon="check-circle" style={{ backgroundColor: '#D1E6DA', borderRadius: 16 }} textStyle={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Sudah Dibayar
+                </Chip>
+              ) : overdue ? (
+                <Chip icon="alert-circle" style={{ backgroundColor: '#FAD4D4', borderRadius: 16 }} textStyle={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Terlambat
+                </Chip>
+              ) : upcoming ? (
+                <Chip icon="alert" style={{ backgroundColor: '#FFF3E0', borderRadius: 16 }} textStyle={{ color: '#E65100', fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Segera Jatuh Tempo
+                </Chip>
+              ) : (
+                <Chip icon="clock-outline" style={{ backgroundColor: '#E3F2FD', borderRadius: 16 }} textStyle={{ color: '#1565C0', fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Belum Dibayar
+                </Chip>
               )}
             </View>
-            <View style={styles.actions}>
-              {!item.isPaid && (
-                <IconButton
-                  icon="check-circle"
-                  size={24}
-                  onPress={() => handleMarkAsPaid(item.id)}
-                  iconColor="#4caf50"
-                />
-              )}
-              <IconButton
-                icon="delete"
-                size={24}
-                onPress={() => handleDelete(item.id)}
-                iconColor="#d32f2f"
-              />
-            </View>
+
+            {item.notes && (
+              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
+            )}
           </View>
         </Card.Content>
       </Card>

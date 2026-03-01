@@ -75,7 +75,7 @@ export default function DashboardScreen() {
       const partsNeedingReplacement = partsData.filter(part => {
         // Part yang ditandai perlu diganti (dari switch)
         if (part.needsReplacement === true) return true;
-        
+
         // Part berdasarkan perhitungan kilometer
         if (!part.vehicleId || !part.replacementKm) return false;
         const vehicle = vehiclesData.find(v => v.id === part.vehicleId);
@@ -114,7 +114,7 @@ export default function DashboardScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Title style={[styles.welcomeText, { color: theme.colors.onSurface }]}>Selamat Datang!</Title>
+        <Title style={[styles.welcomeText, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>Selamat Datang!</Title>
         <View style={styles.headerButtons}>
           <IconButton
             icon="cog"
@@ -132,37 +132,37 @@ export default function DashboardScreen() {
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Vehicles')}>
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderLeftWidth: 6, borderLeftColor: theme.colors.primary, borderRadius: theme.roundness }]}>
           <Card.Content>
-            <Title style={{ color: theme.colors.onSurface }}>Total Kendaraan</Title>
-            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{vehicles.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 }}>Total Kendaraan</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>{vehicles.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Services')}>
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderLeftWidth: 6, borderLeftColor: theme.colors.primary, borderRadius: theme.roundness }]}>
           <Card.Content>
-            <Title style={{ color: theme.colors.onSurface }}>Servis Mendatang</Title>
-            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{upcomingServices.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 }}>Servis Mendatang</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>{upcomingServices.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Parts')}>
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderLeftWidth: 6, borderLeftColor: theme.colors.primary, borderRadius: theme.roundness }]}>
           <Card.Content>
-            <Title style={{ color: theme.colors.onSurface }}>Parts Perlu Diganti</Title>
-            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{partsToReplace.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 }}>Parts Perlu Diganti</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>{partsToReplace.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Taxes')}>
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderLeftWidth: 6, borderLeftColor: theme.colors.primary, borderRadius: theme.roundness }]}>
           <Card.Content>
-            <Title style={{ color: theme.colors.onSurface }}>Pajak Mendatang</Title>
-            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary }]}>{upcomingTaxes.length}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 }}>Pajak Mendatang</Title>
+            <Paragraph style={[styles.bigNumber, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>{upcomingTaxes.length}</Paragraph>
           </Card.Content>
         </Card>
       </TouchableOpacity>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 28,
   },
   card: {
     marginBottom: 16,

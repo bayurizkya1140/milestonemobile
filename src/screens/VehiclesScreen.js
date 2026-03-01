@@ -70,23 +70,23 @@ const VehiclesScreen = ({ navigation }) => {
   };
 
   const renderVehicle = ({ item }) => (
-    <Card 
-      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    <Card
+      style={[styles.card, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness, overflow: 'hidden' }]}
       onPress={() => navigation.navigate('VehicleDetail', { vehicleId: item.id })}
     >
       <Card.Content>
         <View style={styles.cardHeader}>
           <View style={styles.cardContent}>
-            <Title style={{ color: theme.colors.onSurface }}>{item.brand} {item.model}</Title>
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Plat: {item.licensePlate}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 }}>{item.brand} {item.model}</Title>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Plat: <Text style={{ fontWeight: 'bold' }}>{item.licensePlate}</Text></Paragraph>
             <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Tahun: {item.year}</Paragraph>
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Kilometer: {item.currentMileage?.toLocaleString() || 0} km</Paragraph>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Kilometer: <Text style={{ fontWeight: 'bold' }}>{item.currentMileage?.toLocaleString('id-ID') || 0} km</Text></Paragraph>
           </View>
           <View style={styles.actions}>
-            <Chip 
+            <Chip
               icon={item.type === 'motor' ? 'motorbike' : 'car'}
-              style={{ backgroundColor: theme.colors.surfaceVariant }}
-              textStyle={{ color: theme.colors.onSurfaceVariant }}
+              style={{ backgroundColor: '#D1E6DA', borderRadius: 16 }}
+              textStyle={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium' }}
             >
               {item.type === 'motor' ? 'Motor' : 'Mobil'}
             </Chip>

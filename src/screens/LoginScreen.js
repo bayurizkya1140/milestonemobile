@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { TextInput, Button, Card, Title, Text, HelperText } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -48,25 +49,27 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoContainer}>
-          <Title style={[styles.appTitle, { color: theme.colors.primary }]}>🚗 Milestone</Title>
-          <Text style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}>Kelola kendaraan Anda dengan mudah</Text>
+          <Title style={{ fontSize: 48, marginBottom: 8 }}><Ionicons name="car" size={64} color={theme.colors.primary} /></Title>
+          <Title style={[styles.appTitle, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold' }]}>Milestone</Title>
+          <Text style={[styles.tagline, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_500Medium' }]}>Kelola kendaraan Anda dengan mudah</Text>
         </View>
 
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness * 2 }]}>
           <Card.Content>
-            <Title style={[styles.cardTitle, { color: theme.colors.onSurface }]}>Masuk</Title>
-            
+            <Title style={[styles.cardTitle, { color: theme.colors.primary, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 24, marginTop: 8 }]}>Masuk</Title>
+
             <TextInput
-              label="Email"
+              label={null}
+              placeholder="Email"
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -78,11 +81,13 @@ export default function LoginScreen({ navigation }) {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
-              left={<TextInput.Icon icon="email" />}
+              left={<TextInput.Icon icon="email" color={theme.colors.primary} />}
+              theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
             />
 
             <TextInput
-              label="Password"
+              label={null}
+              placeholder="Password"
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -93,13 +98,15 @@ export default function LoginScreen({ navigation }) {
               style={styles.input}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
-              left={<TextInput.Icon icon="lock" />}
+              left={<TextInput.Icon icon="lock" color={theme.colors.primary} />}
               right={
-                <TextInput.Icon 
-                  icon={showPassword ? "eye-off" : "eye"} 
+                <TextInput.Icon
+                  icon={showPassword ? "eye-off" : "eye"}
                   onPress={() => setShowPassword(!showPassword)}
+                  color={theme.colors.primary}
                 />
               }
+              theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
             />
 
             {(localError || error) && (
@@ -115,6 +122,8 @@ export default function LoginScreen({ navigation }) {
               disabled={loading}
               style={styles.button}
               contentStyle={styles.buttonContent}
+              labelStyle={{ fontFamily: 'SpaceGrotesk_700Bold', fontSize: 16 }}
+              buttonColor={theme.colors.primary}
             >
               Masuk
             </Button>
@@ -123,22 +132,25 @@ export default function LoginScreen({ navigation }) {
               mode="text"
               onPress={() => navigation.navigate('ForgotPassword')}
               style={styles.linkButton}
+              labelStyle={{ fontFamily: 'SpaceGrotesk_500Medium', color: theme.colors.onSurfaceVariant }}
             >
               Lupa Password?
             </Button>
+
+            <View style={styles.registerContainer}>
+              <Text style={[styles.registerText, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_400Regular' }]}>Belum punya akun?</Text>
+              <Button
+                mode="outlined"
+                onPress={() => navigation.navigate('Register')}
+                style={styles.registerButton}
+                labelStyle={{ fontFamily: 'SpaceGrotesk_500Medium' }}
+                textColor={theme.colors.primary}
+              >
+                Daftar Sekarang
+              </Button>
+            </View>
           </Card.Content>
         </Card>
-
-        <View style={styles.registerContainer}>
-          <Text style={[styles.registerText, { color: theme.colors.onSurfaceVariant }]}>Belum punya akun?</Text>
-          <Button
-            mode="outlined"
-            onPress={() => navigation.navigate('Register')}
-            style={styles.registerButton}
-          >
-            Daftar Sekarang
-          </Button>
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

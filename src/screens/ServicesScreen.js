@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Alert, Text } from 'react-native';
 import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getServices, deleteService, getVehicles } from '../services/firebaseService';
@@ -38,7 +38,7 @@ export default function ServicesScreen() {
     } catch (error) {
       console.error('Error loading data:', error);
       Alert.alert(
-        'Error', 
+        'Error',
         'Gagal memuat data servis. Pastikan Firestore sudah diaktifkan dan index sudah dibuat jika diperlukan.',
         [{ text: 'OK' }]
       );
@@ -112,62 +112,72 @@ export default function ServicesScreen() {
     const kmRemaining = getKmRemaining(item);
     const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
     const needsService = kmRemaining !== null && kmRemaining <= 0;
+
+    // Hitung progress width (100 = full) berdasarkan estimasi interval per kendaraan
+    const vehicle = vehicleMap.get(item.vehicleId);
+    const interval = vehicle?.type === 'motor' ? 2000 : 10000;
+
+    // Logika bar diperbarui: makin sedikit sisanya, makin panjang bar hijaunya (mendekati 100%)
+    let progressWidth = 0;
+    if (kmRemaining !== null) {
+      const percentageCompleted = ((interval - kmRemaining) / interval) * 100;
+      progressWidth = Math.max(0, Math.min(100, percentageCompleted));
+    }
+
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
-          <View style={styles.cardHeader}>
-            <View style={styles.cardContent}>
-              <Title style={{ color: theme.colors.onSurface }}>{item.serviceType}</Title>
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{getVehicleName(item.vehicleId)}</Paragraph>
-              {item.serviceDate && (
-                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                  Tanggal: {(() => {
-                    try {
-                      const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
-                      return format(date, 'dd MMM yyyy', { locale: id });
-                    } catch (e) {
-                      return 'Tanggal tidak valid';
-                    }
-                  })()}
-                </Paragraph>
-              )}
-              {item.nextServiceKm && (
-                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                  Kilometer servis berikutnya: {item.nextServiceKm.toLocaleString('id-ID')} km
-                </Paragraph>
-              )}
-              {kmRemaining !== null && (
-                <View style={styles.statusRow}>
-                  {needsService ? (
-                    <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                      Sudah Lewat Servis
-                    </Chip>
-                  ) : urgent ? (
-                    <Chip icon="alert" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                      Kurang dari 300 km sebelum servis berikutnya!
-                    </Chip>
-                  ) : (
-                    <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
-                      Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                    </Chip>
-                  )}
-                </View>
-              )}
-              {item.cost && (
-                <Paragraph style={[styles.cost, { color: theme.colors.primary }]}>
-                  Biaya: Rp {item.cost.toLocaleString('id-ID')}
-                </Paragraph>
-              )}
-              {item.notes && (
-                <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
-              )}
-            </View>
-            <IconButton
-              icon="delete"
-              size={24}
-              onPress={() => handleDelete(item.id)}
-              iconColor="#d32f2f"
-            />
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
+        <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0 }}>{item.serviceType}</Title>
+          <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+        </View>
+        <Card.Content style={{ paddingTop: 16 }}>
+          <View style={styles.cardContent}>
+            <Paragraph style={{ color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 16, marginBottom: 0 }}>{getVehicleName(item.vehicleId)}</Paragraph>
+            {item.serviceDate && (
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
+                Tanggal: {(() => {
+                  try {
+                    const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
+                    return format(date, 'dd MMM yyyy', { locale: id });
+                  } catch (e) {
+                    return 'Tanggal tidak valid';
+                  }
+                })()}
+              </Paragraph>
+            )}
+            {item.nextServiceKm && (
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
+                Kilometer servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceKm.toLocaleString('id-ID')} km</Text>
+              </Paragraph>
+            )}
+            {kmRemaining !== null && (
+              <View style={styles.statusRow}>
+                {needsService ? (
+                  <Chip icon="alert-circle" style={{ backgroundColor: '#FAD4D4', borderRadius: 16 }} textStyle={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium' }}>
+                    Sudah Lewat Servis
+                  </Chip>
+                ) : urgent ? (
+                  <Chip icon="alert" style={{ backgroundColor: '#FFF3E0', borderRadius: 16 }} textStyle={{ color: '#E65100', fontFamily: 'SpaceGrotesk_500Medium' }}>
+                    Hanya {kmRemaining.toLocaleString('id-ID')} km lagi
+                  </Chip>
+                ) : (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F1EA', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, alignSelf: 'flex-start' }}>
+                    <Text style={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium', marginRight: 8 }}>Sisa: {kmRemaining.toLocaleString('id-ID')} km</Text>
+                    <View style={{ height: 8, width: 100, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' }}>
+                      <View style={{ height: 8, width: `${progressWidth}%`, backgroundColor: theme.colors.primary, borderRadius: 4 }} />
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
+            {item.cost && (
+              <Paragraph style={[styles.cost, { color: theme.colors.onSurface }]}>
+                Biaya: <Text style={{ fontWeight: 'bold' }}>Rp {item.cost.toLocaleString('id-ID')}</Text>
+              </Paragraph>
+            )}
+            {item.notes && (
+              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
+            )}
           </View>
         </Card.Content>
       </Card>

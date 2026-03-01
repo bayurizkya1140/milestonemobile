@@ -1,37 +1,5 @@
 {
   "expo": {
-    "name": "Milestone Mobile",
-    "slug": "milestonemobile",
-    "version": "1.1.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "softwareKeyboardLayoutMode": "pan",
-      "package": "com.bayurizkya.milestonemobile",
-      "googleServicesFile": "./google-services.json"
-    },
-    "web": {
-      "bundler": "metro"
-    },
-    "plugins": [
-      "@react-native-community/datetimepicker",
-      "expo-font",
-      [
-        "@react-native-firebase/app",
-        {
-          "android": {
-            "googleServicesFile": "./google-services.json"
-          }
-        }
-      ],
-      "@react-native-firebase/auth"
-    ],
     "extra": {
       "eas": {
         "projectId": "9d5d588e-54ee-4f68-a464-ebaa28677f01"

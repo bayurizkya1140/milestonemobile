@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { useFonts, SpaceGrotesk_400Regular, SpaceGrotesk_500Medium, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -44,19 +45,25 @@ function AuthStackScreen() {
 
 function VehiclesStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="VehiclesList" 
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#1F4E34' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontFamily: 'SpaceGrotesk_500Medium' },
+      }}
+    >
+      <Stack.Screen
+        name="VehiclesList"
         component={VehiclesScreen}
         options={{ title: 'Kendaraan Saya' }}
       />
-      <Stack.Screen 
-        name="AddVehicle" 
+      <Stack.Screen
+        name="AddVehicle"
         component={AddVehicleScreen}
         options={{ title: 'Tambah Kendaraan' }}
       />
-      <Stack.Screen 
-        name="VehicleDetail" 
+      <Stack.Screen
+        name="VehicleDetail"
         component={VehicleDetailScreen}
         options={{ title: 'Detail Kendaraan' }}
       />
@@ -66,14 +73,20 @@ function VehiclesStack() {
 
 function ServicesStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="ServicesList" 
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#1F4E34' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontFamily: 'SpaceGrotesk_500Medium' },
+      }}
+    >
+      <Stack.Screen
+        name="ServicesList"
         component={ServicesScreen}
         options={{ title: 'Servis Kendaraan' }}
       />
-      <Stack.Screen 
-        name="AddService" 
+      <Stack.Screen
+        name="AddService"
         component={AddServiceScreen}
         options={{ title: 'Tambah Servis' }}
       />
@@ -83,14 +96,20 @@ function ServicesStack() {
 
 function PartsStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="PartsList" 
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#1F4E34' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontFamily: 'SpaceGrotesk_500Medium' },
+      }}
+    >
+      <Stack.Screen
+        name="PartsList"
         component={PartsScreen}
         options={{ title: 'Parts & Komponen' }}
       />
-      <Stack.Screen 
-        name="AddPart" 
+      <Stack.Screen
+        name="AddPart"
         component={AddPartScreen}
         options={{ title: 'Tambah Part' }}
       />
@@ -100,14 +119,20 @@ function PartsStack() {
 
 function TaxesStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="TaxesList" 
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#1F4E34' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontFamily: 'SpaceGrotesk_500Medium' },
+      }}
+    >
+      <Stack.Screen
+        name="TaxesList"
         component={TaxesScreen}
         options={{ title: 'Pajak Kendaraan' }}
       />
-      <Stack.Screen 
-        name="AddTax" 
+      <Stack.Screen
+        name="AddTax"
         component={AddTaxScreen}
         options={{ title: 'Tambah Pajak' }}
       />
@@ -117,14 +142,20 @@ function TaxesStack() {
 
 function DashboardStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="DashboardMain" 
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#1F4E34' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontFamily: 'SpaceGrotesk_500Medium' },
+      }}
+    >
+      <Stack.Screen
+        name="DashboardMain"
         component={DashboardScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="Settings" 
+      <Stack.Screen
+        name="Settings"
         component={SettingsScreen}
         options={{ title: 'Pengaturan' }}
       />
@@ -159,13 +190,16 @@ function MainApp() {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.outline,
         },
+        tabBarLabelStyle: {
+          fontFamily: 'SpaceGrotesk_500Medium',
+        },
         headerShown: false,
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardStack} />
-      <Tab.Screen 
-        name="Vehicles" 
-        component={VehiclesStack} 
+      <Tab.Screen
+        name="Vehicles"
+        component={VehiclesStack}
         options={{ unmountOnBlur: true }}
       />
       <Tab.Screen name="Services" component={ServicesStack} />
@@ -178,7 +212,7 @@ function MainApp() {
 // Loading Screen
 function LoadingScreen() {
   const { theme, isLoading: themeLoading } = useTheme();
-  
+
   return (
     <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
       <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -191,7 +225,6 @@ function RootNavigator() {
   const { user, loading } = useAuth();
   const { theme, isDark, isLoading: themeLoading } = useTheme();
 
-  // Create navigation theme based on current theme
   const navigationTheme = isDark ? {
     ...NavigationDarkTheme,
     colors: {
@@ -208,8 +241,8 @@ function RootNavigator() {
       ...NavigationDefaultTheme.colors,
       primary: theme.colors.primary,
       background: theme.colors.background,
-      card: theme.colors.surface,
-      text: theme.colors.onSurface,
+      card: '#1F4E34', // Make the header card dark green
+      text: '#FFFFFF', // Make header text white
       border: theme.colors.outline,
     },
   };
@@ -227,7 +260,7 @@ function RootNavigator() {
 
 function AppContent() {
   const { theme } = useTheme();
-  
+
   return (
     <PaperProvider theme={theme}>
       <RootNavigator />
@@ -236,6 +269,16 @@ function AppContent() {
 }
 
 export default function App() {
+  let [fontsLoaded] = useFonts({
+    SpaceGrotesk_400Regular,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#1F4E34" /></View>;
+  }
+
   return (
     <ErrorBoundary>
       <AuthProvider>

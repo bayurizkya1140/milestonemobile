@@ -9,7 +9,7 @@ import { formatNumberWithDots, parseFormattedNumberToInt } from '../utils/format
 const AddVehicleScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  
+
   const [vehicleType, setVehicleType] = useState('motor');
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
@@ -49,10 +49,10 @@ const AddVehicleScreen = ({ navigation }) => {
 
       console.log('Adding vehicle with userId:', user.uid);
       console.log('Vehicle data:', vehicleData);
-      
+
       const vehicleId = await addVehicle(vehicleData, user.uid);
       console.log('Vehicle added successfully with ID:', vehicleId);
-      
+
       Alert.alert('Sukses', 'Kendaraan berhasil ditambahkan', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -67,15 +67,16 @@ const AddVehicleScreen = ({ navigation }) => {
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
-        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Jenis Kendaraan</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_500Medium' }]}>Jenis Kendaraan</Text>
         <SegmentedButtons
           value={vehicleType}
           onValueChange={setVehicleType}
           buttons={[
-            { value: 'motor', label: 'Motor' },
-            { value: 'mobil', label: 'Mobil' },
+            { value: 'motor', label: 'Motor', checkedColor: '#fff', style: vehicleType === 'motor' ? { backgroundColor: theme.colors.primary } : { backgroundColor: '#EBEBEB' } },
+            { value: 'mobil', label: 'Mobil', checkedColor: '#fff', style: vehicleType === 'mobil' ? { backgroundColor: theme.colors.primary } : { backgroundColor: '#EBEBEB' } },
           ]}
           style={styles.segmentedButton}
+          theme={{ colors: { secondaryContainer: theme.colors.primary } }}
         />
 
         <TextInput
@@ -84,7 +85,8 @@ const AddVehicleScreen = ({ navigation }) => {
           onChangeText={setBrand}
           mode="outlined"
           style={styles.input}
-          placeholder="Contoh: Honda, Toyota"
+          placeholder="Contoh: Honda"
+          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -93,7 +95,8 @@ const AddVehicleScreen = ({ navigation }) => {
           onChangeText={setModel}
           mode="outlined"
           style={styles.input}
-          placeholder="Contoh: Vario, Avanza"
+          placeholder="Contoh: Vario 150"
+          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -103,8 +106,9 @@ const AddVehicleScreen = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
-          placeholder="Contoh: 2020"
+          placeholder="YYYY"
           maxLength={4}
+          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -114,7 +118,8 @@ const AddVehicleScreen = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           autoCapitalize="characters"
-          placeholder="Contoh: B 1234 ABC"
+          placeholder="B 1234 CDE"
+          theme={{ colors: { primary: theme.colors.primary, background: '#E3F2E7' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -124,7 +129,8 @@ const AddVehicleScreen = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
-          placeholder="Contoh: 15.000"
+          placeholder="0"
+          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <Button
@@ -132,7 +138,9 @@ const AddVehicleScreen = ({ navigation }) => {
           onPress={handleSave}
           loading={loading}
           disabled={loading}
-          style={styles.button}
+          style={[styles.button, { borderRadius: 8 }]}
+          labelStyle={{ fontFamily: 'SpaceGrotesk_700Bold', fontSize: 16 }}
+          buttonColor={theme.colors.primary}
         >
           Simpan Kendaraan
         </Button>
