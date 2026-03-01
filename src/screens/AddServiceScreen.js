@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button, Card, Title, HelperText } from 'react-native-paper';
+import { TextInput, Button, Card, Title, HelperText, SegmentedButtons, Text } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addService, getVehicles } from '../services/firebaseService';
@@ -24,6 +24,7 @@ export default function AddServiceScreen() {
     vehicleId: vehicleIdFromRoute || '',
     serviceType: '',
     serviceDate: new Date(),
+    serviceKm: '',
     nextServiceDate: null,
     nextServiceKm: '',
     cost: '',
@@ -32,6 +33,7 @@ export default function AddServiceScreen() {
   const [vehicleError, setVehicleError] = useState(false);
   const [showServiceDatePicker, setShowServiceDatePicker] = useState(false);
   const [showNextServiceDatePicker, setShowNextServiceDatePicker] = useState(false);
+  const [serviceKmSource, setServiceKmSource] = useState('current');
 
   useEffect(() => {
     loadVehicles();
@@ -41,6 +43,12 @@ export default function AddServiceScreen() {
     try {
       const data = await getVehicles(user.uid);
       setVehicles(data);
+      if (formData.vehicleId && serviceKmSource === 'current') {
+        const selected = data.find(v => v.id === formData.vehicleId);
+        if (selected && selected.currentMileage != null) {
+          setFormData(prev => ({ ...prev, serviceKm: formatNumberWithDots(selected.currentMileage.toString()) }));
+        }
+      }
     } catch (error) {
       console.error('Error loading vehicles:', error);
     }
@@ -66,6 +74,10 @@ export default function AddServiceScreen() {
         cost: formData.cost ? parseFormattedNumberToFloat(formData.cost) : null,
         notes: formData.notes || null,
       };
+
+      if (formData.serviceKm) {
+        serviceData.serviceKm = parseFormattedNumberToInt(formData.serviceKm);
+      }
 
       if (formData.nextServiceDate) {
         serviceData.nextServiceDate = firestore.Timestamp.fromDate(formData.nextServiceDate);
@@ -107,6 +119,16 @@ export default function AddServiceScreen() {
                 onValueChange={(itemValue) => {
                   handleChange('vehicleId', itemValue);
                   setVehicleError(false);
+                  if (serviceKmSource === 'current' && itemValue) {
+                    const selectedVehicle = vehicles.find(v => v.id === itemValue);
+                    if (selectedVehicle && selectedVehicle.currentMileage != null) {
+                      handleChange('serviceKm', formatNumberWithDots(selectedVehicle.currentMileage.toString()));
+                    } else {
+                      handleChange('serviceKm', '');
+                    }
+                  } else if (serviceKmSource === 'current' && !itemValue) {
+                    handleChange('serviceKm', '');
+                  }
                 }}
                 style={{ height: 55, color: theme.colors.onSurface }}
                 dropdownIconColor={theme.colors.onSurfaceVariant}
@@ -166,7 +188,37 @@ export default function AddServiceScreen() {
             />
           )}
 
-
+          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Kilometer Pada Saat Servis</Text>
+          <SegmentedButtons
+            value={serviceKmSource}
+            onValueChange={(value) => {
+              setServiceKmSource(value);
+              if (value === 'current' && formData.vehicleId) {
+                const selectedVehicle = vehicles.find(v => v.id === formData.vehicleId);
+                if (selectedVehicle && selectedVehicle.currentMileage != null) {
+                  handleChange('serviceKm', formatNumberWithDots(selectedVehicle.currentMileage.toString()));
+                } else {
+                  handleChange('serviceKm', '');
+                }
+              }
+            }}
+            buttons={[
+              { value: 'current', label: 'Sesuai KM Saat Ini' },
+              { value: 'manual', label: 'Input Manual' },
+            ]}
+            style={styles.segmentedButton}
+            theme={{ colors: { secondaryContainer: theme.colors.primary } }}
+          />
+          <TextInput
+            label="Kilometer"
+            value={formData.serviceKm}
+            onChangeText={(value) => handleChange('serviceKm', formatNumberWithDots(value))}
+            mode="outlined"
+            keyboardType="numeric"
+            style={styles.input}
+            placeholder="Contoh: 50.000"
+            disabled={serviceKmSource === 'current'}
+          />
 
           <Button
             mode="outlined"
@@ -270,6 +322,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   dateButton: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  segmentedButton: {
     marginBottom: 12,
   },
   button: {

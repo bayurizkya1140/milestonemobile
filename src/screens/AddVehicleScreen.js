@@ -72,8 +72,8 @@ const AddVehicleScreen = ({ navigation }) => {
           value={vehicleType}
           onValueChange={setVehicleType}
           buttons={[
-            { value: 'motor', label: 'Motor', checkedColor: '#fff', style: vehicleType === 'motor' ? { backgroundColor: theme.colors.primary } : { backgroundColor: '#EBEBEB' } },
-            { value: 'mobil', label: 'Mobil', checkedColor: '#fff', style: vehicleType === 'mobil' ? { backgroundColor: theme.colors.primary } : { backgroundColor: '#EBEBEB' } },
+            { value: 'motor', label: 'Motor', checkedColor: '#fff', uncheckedColor: theme.colors.onSurface, style: vehicleType === 'motor' ? { backgroundColor: theme.colors.primary } : { backgroundColor: theme.colors.surfaceVariant } },
+            { value: 'mobil', label: 'Mobil', checkedColor: '#fff', uncheckedColor: theme.colors.onSurface, style: vehicleType === 'mobil' ? { backgroundColor: theme.colors.primary } : { backgroundColor: theme.colors.surfaceVariant } },
           ]}
           style={styles.segmentedButton}
           theme={{ colors: { secondaryContainer: theme.colors.primary } }}
@@ -86,7 +86,8 @@ const AddVehicleScreen = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           placeholder="Contoh: Honda"
-          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
+          textColor={theme.colors.onSurface}
+          theme={{ colors: { primary: theme.colors.primary, background: theme.colors.surface }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -96,7 +97,8 @@ const AddVehicleScreen = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           placeholder="Contoh: Vario 150"
-          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
+          textColor={theme.colors.onSurface}
+          theme={{ colors: { primary: theme.colors.primary, background: theme.colors.surface }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -108,7 +110,8 @@ const AddVehicleScreen = ({ navigation }) => {
           keyboardType="numeric"
           placeholder="YYYY"
           maxLength={4}
-          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
+          textColor={theme.colors.onSurface}
+          theme={{ colors: { primary: theme.colors.primary, background: theme.colors.surface }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -119,7 +122,8 @@ const AddVehicleScreen = ({ navigation }) => {
           style={styles.input}
           autoCapitalize="characters"
           placeholder="B 1234 CDE"
-          theme={{ colors: { primary: theme.colors.primary, background: '#E3F2E7' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
+          textColor={theme.colors.onSurface}
+          theme={{ colors: { primary: theme.colors.primary, background: theme.colors.surface }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <TextInput
@@ -130,7 +134,8 @@ const AddVehicleScreen = ({ navigation }) => {
           style={styles.input}
           keyboardType="numeric"
           placeholder="0"
-          theme={{ colors: { primary: theme.colors.primary, background: '#F1F1F1' }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
+          textColor={theme.colors.onSurface}
+          theme={{ colors: { primary: theme.colors.primary, background: theme.colors.surface }, roundness: 8, fonts: { regular: { fontFamily: 'SpaceGrotesk_400Regular' } } }}
         />
 
         <Button

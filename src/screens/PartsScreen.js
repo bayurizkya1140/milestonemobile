@@ -161,9 +161,9 @@ export default function PartsScreen() {
                     Hanya {kmRemaining.toLocaleString('id-ID')} km lagi
                   </Chip>
                 ) : (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F1EA', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, alignSelf: 'flex-start' }}>
-                    <Text style={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium', marginRight: 8 }}>Sisa: {kmRemaining.toLocaleString('id-ID')} km</Text>
-                    <View style={{ height: 8, width: 100, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F1EA', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, width: '100%' }}>
+                    <Text style={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium', marginRight: 12 }}>Sisa: {kmRemaining.toLocaleString('id-ID')} km</Text>
+                    <View style={{ height: 8, flex: 1, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' }}>
                       <View style={{ height: 8, width: `${progressWidth}%`, backgroundColor: theme.colors.primary, borderRadius: 4 }} />
                     </View>
                   </View>

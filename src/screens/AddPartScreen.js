@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
-import { TextInput, Button, Card, Title, HelperText, Switch, Text } from 'react-native-paper';
+import { TextInput, Button, Card, Title, HelperText, Switch, Text, SegmentedButtons } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addPart, getVehicles } from '../services/firebaseService';
@@ -29,6 +29,7 @@ export default function AddPartScreen() {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [needsReplacement, setNeedsReplacement] = useState(false);
+  const [installedKmSource, setInstalledKmSource] = useState('current');
 
   useEffect(() => {
     loadVehicles();
@@ -38,6 +39,12 @@ export default function AddPartScreen() {
     try {
       const data = await getVehicles(user.uid);
       setVehicles(data);
+      if (formData.vehicleId && installedKmSource === 'current') {
+        const selected = data.find(v => v.id === formData.vehicleId);
+        if (selected && selected.currentMileage != null) {
+          setFormData(prev => ({ ...prev, installedKm: formatNumberWithDots(selected.currentMileage.toString()) }));
+        }
+      }
     } catch (error) {
       console.error('Error loading vehicles:', error);
     }
@@ -99,7 +106,19 @@ export default function AddPartScreen() {
             <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 4, marginBottom: 4 }}>
               <Picker
                 selectedValue={formData.vehicleId}
-                onValueChange={(itemValue) => handleChange('vehicleId', itemValue)}
+                onValueChange={(itemValue) => {
+                  handleChange('vehicleId', itemValue);
+                  if (installedKmSource === 'current' && itemValue) {
+                    const selectedVehicle = vehicles.find(v => v.id === itemValue);
+                    if (selectedVehicle && selectedVehicle.currentMileage != null) {
+                      handleChange('installedKm', formatNumberWithDots(selectedVehicle.currentMileage.toString()));
+                    } else {
+                      handleChange('installedKm', '');
+                    }
+                  } else if (installedKmSource === 'current' && !itemValue) {
+                    handleChange('installedKm', '');
+                  }
+                }}
                 style={{ height: 55, color: theme.colors.onSurface }}
                 dropdownIconColor={theme.colors.onSurfaceVariant}
               >
@@ -140,14 +159,36 @@ export default function AddPartScreen() {
 
           {!needsReplacement && (
             <>
+              <Text style={[styles.label, { color: theme.colors.onSurface }]}>Kilometer Terpasang *</Text>
+              <SegmentedButtons
+                value={installedKmSource}
+                onValueChange={(value) => {
+                  setInstalledKmSource(value);
+                  if (value === 'current' && formData.vehicleId) {
+                    const selectedVehicle = vehicles.find(v => v.id === formData.vehicleId);
+                    if (selectedVehicle && selectedVehicle.currentMileage != null) {
+                      handleChange('installedKm', formatNumberWithDots(selectedVehicle.currentMileage.toString()));
+                    } else {
+                      handleChange('installedKm', '');
+                    }
+                  }
+                }}
+                buttons={[
+                  { value: 'current', label: 'Sesuai KM Saat Ini' },
+                  { value: 'manual', label: 'Input Manual' },
+                ]}
+                style={styles.segmentedButton}
+                theme={{ colors: { secondaryContainer: theme.colors.primary } }}
+              />
               <TextInput
-                label="Kilometer Terpasang *"
+                label="Kilometer Terpasang"
                 value={formData.installedKm}
                 onChangeText={(value) => handleChange('installedKm', formatNumberWithDots(value))}
                 mode="outlined"
                 keyboardType="numeric"
                 style={styles.input}
                 placeholder="Contoh: 10.000"
+                disabled={installedKmSource === 'current'}
               />
 
               <TextInput
@@ -243,6 +284,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   dateButton: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  segmentedButton: {
     marginBottom: 12,
   },
   button: {

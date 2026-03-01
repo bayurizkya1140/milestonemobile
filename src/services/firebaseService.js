@@ -70,12 +70,41 @@ export const updateVehicle = async (vehicleId, vehicleData) => {
   }
 };
 
-export const deleteVehicle = async (vehicleId) => {
+export const deleteVehicle = async (vehicleId, userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required for deletion');
+    }
+
+    // Cari dan hapus semua servis yang terkait dengan kendaraan ini
+    const servicesSnapshot = await db.collection('services')
+      .where('vehicleId', '==', vehicleId)
+      .where('userId', '==', userId)
+      .get();
+    const servicesPromises = servicesSnapshot.docs.map(doc => doc.ref.delete());
+
+    // Cari dan hapus semua parts yang terkait dengan kendaraan ini
+    const partsSnapshot = await db.collection('parts')
+      .where('vehicleId', '==', vehicleId)
+      .where('userId', '==', userId)
+      .get();
+    const partsPromises = partsSnapshot.docs.map(doc => doc.ref.delete());
+
+    // Cari dan hapus semua pajak yang terkait dengan kendaraan ini
+    const taxesSnapshot = await db.collection('taxes')
+      .where('vehicleId', '==', vehicleId)
+      .where('userId', '==', userId)
+      .get();
+    const taxesPromises = taxesSnapshot.docs.map(doc => doc.ref.delete());
+
+    // Tunggu semua proses penghapusan data terkait selesai
+    await Promise.all([...servicesPromises, ...partsPromises, ...taxesPromises]);
+
+    // Terakhir, hapus data kendaraannya
     await db.collection('vehicles').doc(vehicleId).delete();
     return true;
   } catch (error) {
-    console.error('Error deleting vehicle:', error);
+    console.error('Error deleting vehicle and related records:', error);
     throw error;
   }
 };

@@ -57,7 +57,7 @@ const VehiclesScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteVehicle(vehicleId);
+              await deleteVehicle(vehicleId, user.uid);
               fetchVehicles();
             } catch (error) {
               console.error('Error deleting vehicle:', error);
