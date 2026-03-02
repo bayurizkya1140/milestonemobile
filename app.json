@@ -1,9 +1,19 @@
 {
   "expo": {
+    "name": "Milestone Mobile",
+    "slug": "milestonemobile",
+    "icon": "./assets/icon.png",
     "extra": {
       "eas": {
         "projectId": "9d5d588e-54ee-4f68-a464-ebaa28677f01"
       }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#1A3626"
+      },
+      "package": "com.bayurizkya.milestonemobile"
     }
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { Card, Title, Paragraph, IconButton, Button, Portal, Modal, TextInput } from 'react-native-paper';
+import { Card, Title, Paragraph, IconButton, Button, Portal, Modal, TextInput, ActivityIndicator } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { getVehicles, getServices, getParts, getTaxes, updateVehicle } from '../services/firebaseService';
@@ -144,6 +144,14 @@ export default function DashboardScreen() {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     return vehicle ? `${vehicle.brand} ${vehicle.model}` : 'Unknown';
   }, [vehicles]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator animating={true} color={theme.colors.primary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
