@@ -1,0 +1,51 @@
+﻿{
+  "id": "c937b58f-753c-440e-80a8-c9fd791ccab9",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "EAS_BUILD_UNKNOWN_GRADLE_ERROR",
+    "message": "Gradle build failed with unknown error. See logs for the \"Run gradlew\" phase for more information."
+  },
+  "artifacts": {},
+  "fingerprint": {
+    "id": "019caf1c-e70b-716c-86a7-543434fb2ce2",
+    "hash": "0ee2e1c5191daf3b615574ee7980e3c094a869af"
+  },
+  "initiatingActor": {
+    "id": "ddc59003-22c6-4eda-94c7-55f040383879",
+    "displayName": "bayurizkya"
+  },
+  "logFiles": [
+    "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772615983597-4cff63be-67c5-4aa5-9c8a-5c4af9125792.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T092008Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=8282e8171769cbb2955bb9d5b8813ce2fde144992bacf9c52622b80c45777b6e2562802964d7e207cae0ea10a7e4c45ca540fdf7126c2ab4b4f000705f5759dfeb334fc7146083f3f4457203842c178a90f61ad2163cdb308ef91ceb290831ff7d05e93ee57fc564996b2c821cd201d10abac77dbbf0a84b27d0308f7157583030fd936bcb5c5d489312be41b0c553d5878aa491659d46f8907080e00ddef1ec10f02cc025059ec7fb5ca80ceaea98036bf5b8aab2bc310f8e28ba2f2ba9df4547f21b3196c2de113a57e0e8c6385a54db4643393c3b0a5a6f1de8f5b9e99e30117c5de13ffcffad54a48910ab3c70e1a15ba54838d60f07b3541159ef9aa587",
+    "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616089628-15ae9cee-e9f9-4397-9991-313f3755b91f.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T092145Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=5f231818bb6c2c5d99c86ed07b7e7d3208e46b7d2fdc2c0bfcf8369dc180797789649a43670f33bd577b0e5eb13fdb90d4f647a0f952528ccce3b6c94c9c04e35f14335c0058ecf0ad35cd0042b294b32e99647991b877a5276ec6f7daa85d5f62ca9f5b8c1c8f142b1e6d8bffdbe39969bef5188f40d81d1388da2195e0858b2b106b8150064334eff6cd2255f8b5817d4fdcb5fae833f45206ccc2f37e07e3b04bbb7c35f24472ee8de2bb84f9081ea8e08b6a01f6d8dd496aeff802b2a48baa854ee7128e0d03042a0fedd671beb5ff2cdd4912c7389af196865d5122ce8be60e09ecc8119367d923cc92d4b65d6a056549f2122b2ef11845fb12dc6fae49",
+    "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616089904-444c3d2b-cdfb-46e8-8889-a97945505213.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T092145Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=981ff52ee446696b044da0f075de6a29bd13e5c80462d9386e8b6efc4b80cfc366cfb0cb080dbc4fae40a90c8a95e478b517adcce376de7ac1debfab05535b76281c41097cbe37bb6fdf052245810adf53ded2c5b5c67c6f78dbe1195168917a0a759116b954356233d395a043d69569d064445263921ebfb1c6b2d09511cc5c9cace7179506ecc3d216ec0fd862378e0f0a3928bc2fc3b8ff9aa7ef89a89dc8c93cd60b7ccfb38038b75d18c69456c1d62eefcc539071ac8ac8758dd857bd5f1c09a815406afb2e34e8a913c01de20d54d489625cded7a6364c35839ee5591201eb01c0e4de259b5eeb00d7c9aa33329ae063491a25de1810e2cb789be1cbfb",
+    "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616090081-b436d2c1-2094-4a8c-9d35-379d4e202ddd.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T092245Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=2d0a62766d177b568e51672971039034e05a1953820b81769b744fa6dc7b95eaf1e9b91c5080cdd77f5aac2e2f2a2a6c0814edca4f48bbe7fc429d3bedb283cbf849090f9dbb5ccd77bcca766eff273a9fb88928dbb3ed8192f4185fdcdd217f2ad2928da79142eb3eb6a1fabed75c560a839f57a64904ef74c2be1b7fa5a871a479f3048febce68031b0193da14f557752d3785cea16d1bf80669b0a16c28662e671d308585d6b1f036c326f270f42bbbb80243ed5c04784f1d9c5043426de26b95151cefa6719991e3a1ca3c44973cc220cd6dbd4682545a69593c84fdfae6413e0d03287084cfc190e5ead91e6d25ebe0e7f9f1f70976474097749ed06b35"
+  ],
+  "project": {
+    "id": "9d5d588e-54ee-4f68-a464-ebaa28677f01",
+    "name": "milestonemobile",
+    "slug": "milestonemobile",
+    "ownerAccount": {
+      "id": "990c092c-eb79-46f0-8738-80ea6727b4ac",
+      "name": "bayurizkya"
+    }
+  },
+  "distribution": "INTERNAL",
+  "buildProfile": "development",
+  "sdkVersion": "54.0.0",
+  "appVersion": "1.1.0",
+  "appBuildVersion": "2",
+  "gitCommitHash": "10ca404d0a993cfa27b9de1e4306299774d06424",
+  "gitCommitMessage": "perubahan posisi kolom",
+  "priority": "NORMAL",
+  "createdAt": "2026-03-04T09:19:43.108Z",
+  "updatedAt": "2026-03-04T09:23:50.751Z",
+  "completedAt": "2026-03-04T09:23:49.475Z",
+  "expirationDate": "2026-03-18T09:19:43.145Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 348,
+    "buildQueueTime": 144332,
+    "buildDuration": 101365
+  }
+}

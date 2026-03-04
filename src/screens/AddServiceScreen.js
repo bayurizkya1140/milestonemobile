@@ -26,6 +26,7 @@ export default function AddServiceScreen() {
     serviceDate: new Date(),
     serviceKm: '',
     nextServiceDate: null,
+    nextServiceType: '',
     nextServiceKm: '',
     cost: '',
     notes: '',
@@ -81,6 +82,10 @@ export default function AddServiceScreen() {
 
       if (formData.nextServiceDate) {
         serviceData.nextServiceDate = firestore.Timestamp.fromDate(formData.nextServiceDate);
+      }
+
+      if (formData.nextServiceType) {
+        serviceData.nextServiceType = formData.nextServiceType;
       }
 
       if (formData.nextServiceKm) {
@@ -240,6 +245,14 @@ export default function AddServiceScreen() {
             style={styles.input}
           />
 
+          <View style={styles.sectionDivider}>
+            <View style={[styles.dividerLine, { backgroundColor: theme.colors.outline }]} />
+            <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>
+              Informasi Servis Berikutnya
+            </Text>
+            <View style={[styles.dividerLine, { backgroundColor: theme.colors.outline }]} />
+          </View>
+
           <Button
             mode="outlined"
             onPress={() => setShowNextServiceDatePicker(true)}
@@ -270,6 +283,15 @@ export default function AddServiceScreen() {
               }}
             />
           )}
+
+          <TextInput
+            label="Jenis Servis Berikutnya"
+            value={formData.nextServiceType}
+            onChangeText={(value) => handleChange('nextServiceType', value)}
+            mode="outlined"
+            style={styles.input}
+            placeholder="Contoh: Servis Rutin, Ganti Oli, dll"
+          />
 
           <TextInput
             label="Servis Berikutnya pada Kilometer"
@@ -334,5 +356,19 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+  },
+  sectionDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  sectionTitle: {
+    marginHorizontal: 12,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

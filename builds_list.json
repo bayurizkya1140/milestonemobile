@@ -1,0 +1,171 @@
+﻿node.exe : Γÿà eas-cli@18.1.0 is now available
+.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Pro
+gram Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( 
+   Γÿà eas-cli@18.1.0 is now available.:Stri  
+  ng) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandEr 
+   ror
+ 
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+
+[
+  {
+    "id": "0786d89f-f0b4-4cd6-8eeb-01cce7371247",
+    "status": "FINISHED",
+    "platform": "ANDROID",
+    "artifacts": {
+      "buildUrl": "https://expo.dev/artifacts/eas/VUBMAM2GZmTrFUd8tqiZH.apk",
+      "applicationArchiveUrl": "https://expo.dev/artifacts/eas/VUBMAM2GZmTrFUd8tqiZH.apk"
+    },
+    "fingerprint": {
+      "id": "019cb82c-b7ed-7c82-b868-19f46ae58802",
+      "hash": "77bf3a603cf07ad286df039c45ba176fd35466b5"
+    },
+    "initiatingActor": {
+      "id": "ddc59003-22c6-4eda-94c7-55f040383879",
+      "displayName": "bayurizkya"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/0786d89f-f0b4-4cd6-8eeb-01cce7371247/1772616464678-648ac085-2562-4b54-bb7e-c0e5e0b356c6.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=00f7778e16372c788695c5b49eb4e7104b31c484b031c0820e0f6490e322ccb3eebda3983645e180f4f2c6b1d24579a8bfe143ab4f9b2ebf6615691063f86c128e842a5e01e8896e937328167ef907a5566ffd721395bbc36f4ff86298388bdde7e4c0592ade298c465aec96740edefd471c9035c698b4524b47074ec4c97188fd4eb092fa43d4cd221d0d998920c8b9ee0f5afc3a605b0edb4d23dec4f236bd71298d51d06294e2767430b303725547a561206b824f6086111f40b49ca35b111c99c29563717f0528fe17bab3d0a7f4e934c2bbcfc5d1333875699a8407d5369d02131a0115c4183461670a9c5d6bf7b4886c1a4f27494ac070f978b9209bb4",
+      "https://job-logs.eascdn.net/production/0786d89f-f0b4-4cd6-8eeb-01cce7371247/1772616700664-f2f13bb9-b156-477f-8911-d30b77d30a93.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=112c8e0bcd3a4b668b98d5c86c969a94d751a21969cf643912a61295e259613e14fb6bb540acddd54ca84108183d80a2bbaaec9c39749cd0ed5fde4e9e57cee4c1d38eb5a001d4bede6a69d4c92021ca45defa62c817b9f785bc82b125ec712bb60cc2111bbc420775a7908a342ae9e19ac9c80c79313595118c905100e14b52a3503286281debe55c15e1da3ec3e2de32c4b089b7b5e2527d9cb6f18e63e1d104f038223494a4f888daee9d51346ded4d78785f04b3eb2fe939aa5dbe2b19c46006dae8fb31c40188af5889304925604f33c531907e1a99386f779fcec813ea8d65aeaa24a910523767efd8d78da24b5ebe219df4606243a87eae47269c29f4",
+      "https://job-logs.eascdn.net/production/0786d89f-f0b4-4cd6-8eeb-01cce7371247/1772616700878-ccd8fb12-bfad-4e2d-85d7-eb90968da660.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=82897425c5e70bbdcdd3f13bf234fd20544b6c74c81361cd3d6770e94e9cccfb0d001fe925d1c6ca3bb216b639d6f7f6a095df296efa2e861facd9897b0b4e2b46e1f88b4691a5cf0f2878d5d2afbebcc1030e228e9046375ba44c8e2f1ad19b0a991285ec25bda6af0159597bc6d13780f07e8dbba869511c81b5fff0c8dd47a0f4305cb3a91c7150d0be6ee6b1c9cd3a74c460c4db6046d098fd6878bc85bab77a5f60ccbfe211ee9f1305eacac702c1af194d399f20d62050aeb18581e73f9539ab4b323d55015b9321a9b835e7f5fa3f0ca647f75e966387c4a17a9ce4622af0fae68958db5e1015013250113458fd0844124be7a33e6094ef1e9ccdbb41",
+      "https://job-logs.eascdn.net/production/0786d89f-f0b4-4cd6-8eeb-01cce7371247/1772616701073-98fe5dd8-1cc8-4940-b4f1-bfe772e53334.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=6ebd374bf8086b2d3fd68d046deb725b978649e5a8def3a9c04ccbf8231f33e9d2787e13f2a706242c13681a6c8acda5bc38bd6f9213837438e6da3ed7366687f361eb9a878f923a27f21b953704c362512ecd28acc1c2ec12ccb0748a9e41ed1b6e35bb25aaa3ce2a2e05f8f0593ab145f8718521fdabf79f1a2e1258087742d3809782235a6696a5da84e3b2bd0bb43ff9060079fa9164879569ba6757e6234206b94dce936fc6d013ac17f72a72fe5210a949dc8b2d1a0e78e5ef1e5bd48dfe5d2cb3bf26c2b2c0785d83223750812d9ef189316fcf241824afe3c597efb1910b410bb9dd31e432aea6c07ce434cc26b589b5c99d61bea84809a1e3c2b61a"
+    ],
+    "project": {
+      "id": "9d5d588e-54ee-4f68-a464-ebaa28677f01",
+      "name": "milestonemobile",
+      "slug": "milestonemobile",
+      "ownerAccount": {
+        "id": "990c092c-eb79-46f0-8738-80ea6727b4ac",
+        "name": "bayurizkya"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "development",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.4.0",
+    "appBuildVersion": "2",
+    "gitCommitHash": "10ca404d0a993cfa27b9de1e4306299774d06424",
+    "gitCommitMessage": "perubahan posisi kolom",
+    "priority": "NORMAL",
+    "createdAt": "2026-03-04T09:27:44.293Z",
+    "updatedAt": "2026-03-04T09:38:31.275Z",
+    "completedAt": "2026-03-04T09:38:26.740Z",
+    "expirationDate": "2026-03-18T09:27:44.344Z",
+    "isForIosSimulator": false,
+    "metrics": {
+      "buildWaitTime": 234,
+      "buildQueueTime": 273860,
+      "buildDuration": 368006
+    }
+  },
+  {
+    "id": "c937b58f-753c-440e-80a8-c9fd791ccab9",
+    "status": "ERRORED",
+    "platform": "ANDROID",
+    "error": {
+      "errorCode": "EAS_BUILD_UNKNOWN_GRADLE_ERROR",
+      "message": "Gradle build failed with unknown error. See logs for the \"Run gradlew\" phase for more information."
+    },
+    "artifacts": {},
+    "fingerprint": {
+      "id": "019caf1c-e70b-716c-86a7-543434fb2ce2",
+      "hash": "0ee2e1c5191daf3b615574ee7980e3c094a869af"
+    },
+    "initiatingActor": {
+      "id": "ddc59003-22c6-4eda-94c7-55f040383879",
+      "displayName": "bayurizkya"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772615983597-4cff63be-67c5-4aa5-9c8a-5c4af9125792.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=88ae612fae3c37ecffad9d8b9cac586d70bccc1c2a84d7f008e13ff8394c25a673beea57e30ef937b7fa442a5106b910760d24c85a3cfdcff2d2f482a337437dfe8275ddbd579199dd1cbfe9ce867f7c5d52202998edadc390ed4b458573163a0c964a8f41216ae8bef1f7ea82ef61bc8f4d0746443db6fd0c7686cb695fa1d2afd38ae2a71fe7549bb3b8d0a3f2df12814d0a8ea7584ceac3367de831366e540868219ede9d01808be61e2f7f88d47bf5a16f217e6ec1dcf94ddcc5c84633665c6e06488b18e7a8519c4a2e88f95967a86bbc06aacbd6f29774986abe64d3b1b4acb4658290ad600bdd7bff17dd35bc479d8c94a29463cd68013abba5422cc3",
+      "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616089628-15ae9cee-e9f9-4397-9991-313f3755b91f.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=1a1e3db958f95a11dba6c7e89e42cf8bd4178a898356c9ea8e992367847e06ae55863d4e6dbb10ed4c1d42cfca7ac53cf307cdf9e68eed40bebde8ddfe03a5c79d85cea5186f9b28b39e61e5da04a92a8556d32e9308f96a17a531138f7ac7c2653ccca499c20b4faebf13cc5bd6e05d8e501d1a681a12192c5d8aa893af21ffb963a6e36249ba21920b55bbf078dcdad0c3751ba87a748c28ae293a08971f0657d468292e2fb6a6c4d6b6b9781d85ee58c090c42b5183f02c2611c3718877f5fd54c50e0d13d62757591a871d1f393acdbb509154dce13fde48d65f7acd6ce21ce76a80afbacf77ad65e8697d9e533caaafd062d7aa1b1dd8e30113c62fbdf8",
+      "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616089904-444c3d2b-cdfb-46e8-8889-a97945505213.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=081e76bce893ae1353c014453b9799a3031b8b56c4e78a2d252afb8383c1e51419bca7493de8f6f1720f020ae466a0209dbdfdd1e956a8fdee646dd3681979d6e65756c28dff4bacd716a0ee736a13e0563a49e8d067cf56ef6a7cf1a341cb2be2a9fe87b17d5928c1d0ae75e3bc2c4145c1671da8f3aa3cac16b7e5306a592a0694d09337fbd8cb432371209aad25e2e748eba723357617011470699f6ada96c7beb63b9599546f00e29e88a5ebe046a5e326113aacc2ef85fa8b19c575225274a89c8eb66615a82ebcdc42242ff88056f61858bc387c8a60d2938677d788901afa23b02f4ce23773298aca42efdc67a24d9f2e213c4fcabf3ffe61329f3d6e",
+      "https://job-logs.eascdn.net/production/c937b58f-753c-440e-80a8-c9fd791ccab9/1772616090081-b436d2c1-2094-4a8c-9d35-379d4e202ddd.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=226358d9324d473c803d1ee0a15c77c359a20eb6366423b29abc85200e10a824abd4ff9787ec61e9ca1e0d346d4e365fff4eb286e88756ec0fa8bc9b449f4c3b68f597e27400f0f26ed61356c5076a28f08a10a2a56b5d34df0c83bada9e1d4b6a2570e9e2cb7e4a68bcb2ffb488badcc7be81310b8f37945c9daf2baac2916d4d05827bef928a5d6ebcb00dda75f1e7ee66902b37c62c6e28fa0dd1e1311a61e64daf5edf37c5037a268f63cd83a58a4b69cd4201052d176eabe12acf6e245142357a0e25c4da3c1206cce203acf1db1f2848ebf33c21af6e009bb5ca8f675f9f341c7326b58030fff78a7474fc16f6bf3728a88bd8b57b15c2fdab0cdf0a1a"
+    ],
+    "project": {
+      "id": "9d5d588e-54ee-4f68-a464-ebaa28677f01",
+      "name": "milestonemobile",
+      "slug": "milestonemobile",
+      "ownerAccount": {
+        "id": "990c092c-eb79-46f0-8738-80ea6727b4ac",
+        "name": "bayurizkya"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "development",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.1.0",
+    "appBuildVersion": "2",
+    "gitCommitHash": "10ca404d0a993cfa27b9de1e4306299774d06424",
+    "gitCommitMessage": "perubahan posisi kolom",
+    "priority": "NORMAL",
+    "createdAt": "2026-03-04T09:19:43.108Z",
+    "updatedAt": "2026-03-04T09:23:50.751Z",
+    "completedAt": "2026-03-04T09:23:49.475Z",
+    "expirationDate": "2026-03-18T09:19:43.145Z",
+    "isForIosSimulator": false,
+    "metrics": {
+      "buildWaitTime": 348,
+      "buildQueueTime": 144332,
+      "buildDuration": 101365
+    }
+  },
+  {
+    "id": "7d16b0b5-8b44-40f8-9e25-74aa042c9437",
+    "status": "ERRORED",
+    "platform": "ANDROID",
+    "error": {
+      "errorCode": "EAS_BUILD_UNKNOWN_GRADLE_ERROR",
+      "message": "Gradle build failed with unknown error. See logs for the \"Run gradlew\" phase for more information."
+    },
+    "artifacts": {},
+    "fingerprint": {
+      "id": "019caf1c-e70b-716c-86a7-543434fb2ce2",
+      "hash": "0ee2e1c5191daf3b615574ee7980e3c094a869af"
+    },
+    "initiatingActor": {
+      "id": "ddc59003-22c6-4eda-94c7-55f040383879",
+      "displayName": "bayurizkya"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/7d16b0b5-8b44-40f8-9e25-74aa042c9437/1772615466217-1ed07527-bf33-45b5-91ce-ee8c81bba2a5.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=3055da63ee54341403761e46939e19359706117ed8b4c92790fb24b0804d008112b1f3a6e463199fb23f86a5b8724214b53f2acde27b1e0e1b07797d1256567bf132595f932161402aedec62fe599758cf93fb96bd96ad44077099b31beb679597b9b6b09109219bb1d27329d25469fc4333a95a80e001a40d7ebebf0f0af90ec93f5dd76c4e224a09d24a2b9793aa431bce2a4c8cf84ada84b2abf3ff6c2c9724f0ef4a0736aa795d687484ad19c321cbb9847c0b08011af3c6c505cdab013b7e693caf9bf214a812a7f0b308652b7c7fa380621b81a2544b9ca2eec62f447e3b1331f1999c9f25178f8d2faa120a841a5ac17d565bf9970024a9ecb83bc059",
+      "https://job-logs.eascdn.net/production/7d16b0b5-8b44-40f8-9e25-74aa042c9437/1772615524526-82cc7cba-846e-4d04-b6c8-a20a9a45a235.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=17a9ecacf7f5f364cda50eebc5025ce77ee3f9f0482c37ddbe027eedbee74b44ea21056c31b72be3530cec9458a206dce4a0a7ef55caa8118bf5ec699e98a1dc474004f1cd994ba84e00a59847351fc49fed36bed4995da5b4600e2ca4916308c2e3f1c06db94aecf29e327aba5c15c1259ebd244759813f7dfc60113069bc431bd2c4ebc4c6ba0fd4f0db30ec95a23e413166f60a096e195c288bf0c10194c7d2436f57186eff0b97a82354af126f922155fd7307e46fad07774b69f2b7c542c15a38ec391b79af6c61f326f18165a775e765cab04dada4a14b34e4546f0bc1cd66881899761fdf66a98fe98281aaa8e9c9265a74bfe18c89f759a52b922b29",
+      "https://job-logs.eascdn.net/production/7d16b0b5-8b44-40f8-9e25-74aa042c9437/1772615524790-cbc24e14-624b-441b-8c5a-8e063515ed72.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=628459963729277d33c41b435c7e28fc13bcc306ff95faa7fe5f04c0aab19f5e03c3328ed58f28e13c70e011cb4a0bf587596d3fa934cfbc6880eb9460886e834acc159864d736db490fef11ad271394bf2504d1c3cab0d93f183745f9f728530e99b4e8e3dddb12fc5ae724b8012b03223e1a8be1c1e9c86a177b2f50764e5f97223552178462f3c51e32230cb597e24c891b83a64c9a309eca536619a9211d31be5fc0c69fa18feac473c8af0a0686ec150975d0ebefa2aaec446b9f9ea3822ed414f92d0cac399606b2571dba43a94991131888ee1ca02380b377a2191e0c4ffa2566b6560da7dbe88dd28ef2ef6d4b0b6dd2564aa0049904c4245dcc9c1d",
+      "https://job-logs.eascdn.net/production/7d16b0b5-8b44-40f8-9e25-74aa042c9437/1772615524987-6bfc263c-13f3-4a83-8fdb-253787098b72.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260304%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260304T142349Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=8e4912edc22043d895fa039b2f4b019af564b12b6b0acfb78fdf3b314eb064dc38158def664914c537657ca171ab4673fda5f25815d5c63aa37d468e074532321333e46331e87a873ae188d136f85f2aefc57408fe9f9d1a309e81f07904d858c984e1fe246d398fb593ad4bc694eab8d76db79375a97f8d61248893702ccfe4a02ade0dc0d277c599b049f341fb0e0360d73228e2f2a372d6646a95947c0251be8d66f846b8093f23c2e179b8ed3315430946731fac2d12ae0a23ad38ebfbd2d652ced314925ddd062028d4bb07551f76abda8259461283ecfa320e3750c45eb9bf43297de72c88ed1dad0ff758832180bea0f2ab11ee89d97cdadaeed597ea"
+    ],
+    "project": {
+      "id": "9d5d588e-54ee-4f68-a464-ebaa28677f01",
+      "name": "milestonemobile",
+      "slug": "milestonemobile",
+      "ownerAccount": {
+        "id": "990c092c-eb79-46f0-8738-80ea6727b4ac",
+        "name": "bayurizkya"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "development",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.1.0",
+    "appBuildVersion": "2",
+    "gitCommitHash": "4034886ac8ddb72f8318340181bd13c980c26ce8",
+    "gitCommitMessage": "penambahan icon aplikasi",
+    "priority": "NORMAL",
+    "createdAt": "2026-03-04T09:11:05.976Z",
+    "updatedAt": "2026-03-04T09:14:33.989Z",
+    "completedAt": "2026-03-04T09:14:28.069Z",
+    "expirationDate": "2026-03-18T09:11:06.014Z",
+    "isForIosSimulator": false,
+    "metrics": {
+      "buildWaitTime": 119,
+      "buildQueueTime": 113188,
+      "buildDuration": 88388
+    }
+  }
+]

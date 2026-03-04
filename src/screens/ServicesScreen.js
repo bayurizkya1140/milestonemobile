@@ -135,7 +135,7 @@ export default function ServicesScreen() {
             <Paragraph style={{ color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 16, marginBottom: 0 }}>{getVehicleName(item.vehicleId)}</Paragraph>
             {item.serviceDate && (
               <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
-                Tanggal: {(() => {
+                Tanggal servis: {(() => {
                   try {
                     const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
                     return format(date, 'dd MMM yyyy', { locale: id });
@@ -150,10 +150,13 @@ export default function ServicesScreen() {
                 KM saat servis: <Text style={{ fontWeight: 'bold' }}>{item.serviceKm.toLocaleString('id-ID')} km</Text>
               </Paragraph>
             )}
-            {item.nextServiceKm && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                Kilometer servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceKm.toLocaleString('id-ID')} km</Text>
+            {item.cost && (
+              <Paragraph style={[styles.cost, { color: theme.colors.onSurface }]}>
+                Biaya: <Text style={{ fontWeight: 'bold' }}>Rp {item.cost.toLocaleString('id-ID')}</Text>
               </Paragraph>
+            )}
+            {item.notes && (
+              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
             )}
             {kmRemaining !== null && (
               <View style={styles.statusRow}>
@@ -175,13 +178,15 @@ export default function ServicesScreen() {
                 )}
               </View>
             )}
-            {item.cost && (
-              <Paragraph style={[styles.cost, { color: theme.colors.onSurface }]}>
-                Biaya: <Text style={{ fontWeight: 'bold' }}>Rp {item.cost.toLocaleString('id-ID')}</Text>
+            {item.nextServiceKm && (
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
+                Kilometer servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceKm.toLocaleString('id-ID')} km</Text>
               </Paragraph>
             )}
-            {item.notes && (
-              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
+            {item.nextServiceType && (
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
+                Jenis servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceType}</Text>
+              </Paragraph>
             )}
           </View>
         </Card.Content>
@@ -239,6 +244,7 @@ const styles = StyleSheet.create({
   },
   statusRow: {
     marginTop: 8,
+    marginBottom: 4,
   },
   urgentChip: {
   },

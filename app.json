@@ -13,7 +13,11 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#1A3626"
       },
-      "package": "com.bayurizkya.milestonemobile"
-    }
+      "package": "com.bayurizkya.milestonemobile",
+      "googleServicesFile": "./google-services.json"
+    },
+    "plugins": [
+      "@react-native-firebase/app"
+    ]
   }
 }
