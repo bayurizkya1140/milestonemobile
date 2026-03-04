@@ -220,6 +220,26 @@ export default function AddServiceScreen() {
             disabled={serviceKmSource === 'current'}
           />
 
+          <TextInput
+            label="Biaya"
+            value={formData.cost}
+            onChangeText={(value) => handleChange('cost', formatNumberWithDots(value))}
+            mode="outlined"
+            keyboardType="numeric"
+            style={styles.input}
+            placeholder="Contoh: 500.000"
+          />
+
+          <TextInput
+            label="Catatan"
+            value={formData.notes}
+            onChangeText={(value) => handleChange('notes', value)}
+            mode="outlined"
+            multiline
+            numberOfLines={4}
+            style={styles.input}
+          />
+
           <Button
             mode="outlined"
             onPress={() => setShowNextServiceDatePicker(true)}
@@ -259,26 +279,6 @@ export default function AddServiceScreen() {
             keyboardType="numeric"
             style={styles.input}
             placeholder="Contoh: 50.000"
-          />
-
-          <TextInput
-            label="Biaya"
-            value={formData.cost}
-            onChangeText={(value) => handleChange('cost', formatNumberWithDots(value))}
-            mode="outlined"
-            keyboardType="numeric"
-            style={styles.input}
-            placeholder="Contoh: 500.000"
-          />
-
-          <TextInput
-            label="Catatan"
-            value={formData.notes}
-            onChangeText={(value) => handleChange('notes', value)}
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            style={styles.input}
           />
 
           <Button
