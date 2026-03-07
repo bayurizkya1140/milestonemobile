@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Alert, Text } from 'react-native';
-import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Alert, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { FAB, Card, Title, Paragraph, Chip, IconButton, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getParts, deletePart, getVehicles } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function PartsScreen() {
   const navigation = useNavigation();
@@ -16,6 +17,8 @@ export default function PartsScreen() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -34,8 +37,25 @@ export default function PartsScreen() {
       ]);
       setParts(partsData);
       setVehicles(vehiclesData);
+
+      // Auto-select first vehicle if none selected or previously selected vehicle no longer exists
+      if (vehiclesData.length > 0) {
+        setSelectedVehicleId(prev => {
+          if (!prev || !vehiclesData.find(v => v.id === prev)) {
+            return vehiclesData[0].id;
+          }
+          return prev;
+        });
+      } else {
+        setSelectedVehicleId(null);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
+      Alert.alert(
+        'Error',
+        'Gagal memuat data part.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -85,9 +105,136 @@ export default function PartsScreen() {
     return part.replacementKm - vehicle.currentMileage;
   }, [vehicleMap]);
 
+  // Filter parts based on selected vehicle
+  const filteredParts = useMemo(() => {
+    if (!selectedVehicleId) return [];
+    return parts.filter(p => p.vehicleId === selectedVehicleId);
+  }, [parts, selectedVehicleId]);
+
+  // Get part count per vehicle
+  const partCountMap = useMemo(() => {
+    const map = new Map();
+    parts.forEach(p => {
+      map.set(p.vehicleId, (map.get(p.vehicleId) || 0) + 1);
+    });
+    return map;
+  }, [parts]);
+
   const onRefresh = () => {
     setRefreshing(true);
     loadData();
+  };
+
+  const renderVehicleSelector = () => {
+    if (vehicles.length === 0) return null;
+
+    return (
+      <View style={styles.vehicleSelectorContainer}>
+        <Text style={[styles.selectorLabel, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_500Medium' }]}>
+          Pilih Kendaraan
+        </Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.vehicleScrollContent}
+        >
+          {vehicles.map((vehicle) => {
+            const isSelected = selectedVehicleId === vehicle.id;
+            const partCount = partCountMap.get(vehicle.id) || 0;
+            const vehicleIcon = vehicle.type === 'motor' ? 'motorbike' : 'car';
+
+            return (
+              <TouchableOpacity
+                key={vehicle.id}
+                activeOpacity={0.7}
+                onPress={() => setSelectedVehicleId(vehicle.id)}
+                style={[
+                  styles.vehicleCard,
+                  {
+                    backgroundColor: isSelected ? theme.colors.primary : theme.colors.surface,
+                    borderColor: isSelected ? theme.colors.primary : theme.colors.outline,
+                    borderWidth: isSelected ? 2 : 1,
+                    borderRadius: theme.roundness + 4,
+                  },
+                ]}
+              >
+                <View style={[
+                  styles.vehicleIconContainer,
+                  {
+                    backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.surfaceVariant,
+                  }
+                ]}>
+                  <MaterialCommunityIcons
+                    name={vehicleIcon}
+                    size={24}
+                    color={isSelected ? '#ffffff' : theme.colors.primary}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.vehicleName,
+                    {
+                      color: isSelected ? '#ffffff' : theme.colors.onSurface,
+                      fontFamily: 'SpaceGrotesk_700Bold',
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {vehicle.brand} {vehicle.model}
+                </Text>
+                <Text
+                  style={[
+                    styles.vehiclePlate,
+                    {
+                      color: isSelected ? 'rgba(255,255,255,0.8)' : theme.colors.onSurfaceVariant,
+                      fontFamily: 'SpaceGrotesk_400Regular',
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {vehicle.licensePlate}
+                </Text>
+                <View style={styles.mileageRow}>
+                  <MaterialCommunityIcons
+                    name="speedometer"
+                    size={12}
+                    color={isSelected ? 'rgba(255,255,255,0.9)' : theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.vehicleMileage,
+                      {
+                        color: isSelected ? 'rgba(255,255,255,0.9)' : theme.colors.primary,
+                        fontFamily: 'SpaceGrotesk_500Medium',
+                      },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {vehicle.currentMileage != null ? `${vehicle.currentMileage.toLocaleString('id-ID')} km` : '- km'}
+                  </Text>
+                </View>
+                <View style={[
+                  styles.serviceCountBadge,
+                  {
+                    backgroundColor: isSelected ? 'rgba(255,255,255,0.25)' : theme.colors.surfaceVariant,
+                  }
+                ]}>
+                  <Text style={[
+                    styles.serviceCountText,
+                    {
+                      color: isSelected ? '#ffffff' : theme.colors.onSurfaceVariant,
+                      fontFamily: 'SpaceGrotesk_500Medium',
+                    }
+                  ]}>
+                    {partCount} part
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+    );
   };
 
   const renderPart = ({ item }) => {
@@ -122,7 +269,6 @@ export default function PartsScreen() {
         </View>
         <Card.Content style={{ paddingTop: 16 }}>
           <View style={styles.cardContent}>
-            <Paragraph style={{ color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 16, marginBottom: 0 }}>{getVehicleName(item.vehicleId)}</Paragraph>
             {item.installedKm && (
               <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
                 Terpasang pada: <Text style={{ fontWeight: 'bold' }}>{item.installedKm.toLocaleString('id-ID')} km</Text>
@@ -180,21 +326,61 @@ export default function PartsScreen() {
     );
   };
 
+  if (loading && vehicles.length === 0) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator animating={true} color={theme.colors.primary} size="large" />
+      </View>
+    );
+  }
+
+  // No vehicles state
+  if (!loading && vehicles.length === 0) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.noVehicleContainer}>
+          <MaterialCommunityIcons name="car-off" size={64} color={theme.colors.onSurfaceVariant} />
+          <Text style={[styles.noVehicleTitle, { color: theme.colors.onSurface, fontFamily: 'SpaceGrotesk_700Bold' }]}>
+            Belum Ada Kendaraan
+          </Text>
+          <Text style={[styles.noVehicleSubtitle, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_400Regular' }]}>
+            Tambahkan kendaraan terlebih dahulu untuk mulai mencatat part
+          </Text>
+          <TouchableOpacity
+            style={[styles.addVehicleButton, { backgroundColor: theme.colors.primary, borderRadius: theme.roundness }]}
+            onPress={() => navigation.navigate('Vehicles')}
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons name="plus" size={20} color="#ffffff" />
+            <Text style={[styles.addVehicleButtonText, { fontFamily: 'SpaceGrotesk_700Bold' }]}>
+              Tambah Kendaraan
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <FlatList
-        data={parts}
+        data={filteredParts}
         renderItem={renderPart}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
         }
+        ListHeaderComponent={renderVehicleSelector()}
         ListEmptyComponent={
-          <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
-              <Paragraph style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                Belum ada parts. Tambahkan part pertama Anda!
+          <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness }]}>
+            <Card.Content style={{ alignItems: 'center', paddingVertical: 24 }}>
+              <MaterialCommunityIcons name="cogs" size={48} color={theme.colors.onSurfaceVariant} style={{ marginBottom: 12 }} />
+              <Paragraph style={[styles.emptyText, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_500Medium' }]}>
+                Belum ada part untuk kendaraan ini.
+              </Paragraph>
+              <Paragraph style={[styles.emptyText, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_400Regular', fontSize: 13, marginTop: 4 }]}>
+                Tekan tombol + untuk menambahkan part.
               </Paragraph>
             </Card.Content>
           </Card>
@@ -203,7 +389,7 @@ export default function PartsScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => navigation.navigate('AddPart')}
+        onPress={() => navigation.navigate('AddPart', { vehicleId: selectedVehicleId })}
       />
     </View>
   );
@@ -215,25 +401,77 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
+    paddingTop: 0,
+  },
+  vehicleSelectorContainer: {
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  selectorLabel: {
+    fontSize: 14,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  vehicleScrollContent: {
+    paddingRight: 8,
+    gap: 10,
+  },
+  vehicleCard: {
+    width: 140,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  vehicleIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  vehicleName: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  vehiclePlate: {
+    fontSize: 11,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  mileageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 4,
+  },
+  vehicleMileage: {
+    fontSize: 11,
+  },
+  serviceCountBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  serviceCountText: {
+    fontSize: 11,
   },
   card: {
     marginBottom: 12,
     elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
   },
   cardContent: {
     flex: 1,
   },
   statusRow: {
     marginTop: 8,
-  },
-  urgentChip: {
-  },
-  infoChip: {
   },
   notes: {
     marginTop: 8,
@@ -246,9 +484,38 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   emptyCard: {
-    marginTop: 32,
+    marginTop: 16,
+    elevation: 1,
   },
   emptyText: {
     textAlign: 'center',
+  },
+  noVehicleContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  noVehicleTitle: {
+    fontSize: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  noVehicleSubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  addVehicleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  addVehicleButtonText: {
+    color: '#ffffff',
+    fontSize: 15,
   },
 });

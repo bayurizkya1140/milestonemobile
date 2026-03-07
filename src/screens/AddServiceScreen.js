@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { TextInput, Button, Card, Title, HelperText, SegmentedButtons, Text } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { addService, getVehicles } from '../services/firebaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform } from 'react-native';
+
 import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -111,7 +112,15 @@ export default function AddServiceScreen() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      enableOnAndroid={true}
+      extraScrollHeight={Platform.OS === 'ios' ? 40 : 120}
+      extraHeight={120}
+    >
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <Title style={{ color: theme.colors.onSurface }}>Informasi Servis</Title>
@@ -313,7 +322,7 @@ export default function AddServiceScreen() {
           </Button>
         </Card.Content>
       </Card>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { TextInput, Button, Card, Title, HelperText } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -74,7 +75,15 @@ export default function AddTaxScreen() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      enableOnAndroid={true}
+      extraScrollHeight={Platform.OS === 'ios' ? 40 : 120}
+      extraHeight={120}
+    >
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <Title style={{ color: theme.colors.onSurface }}>Informasi Pajak</Title>
@@ -196,7 +205,7 @@ export default function AddTaxScreen() {
           </Button>
         </Card.Content>
       </Card>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 
