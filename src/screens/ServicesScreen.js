@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { FAB, Card, Title, Paragraph, Chip, IconButton, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { getServices, deleteService, getVehicles } from '../services/firebaseService';
+import { getServices, deleteService, getVehicles, updateService } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
@@ -84,6 +84,21 @@ export default function ServicesScreen() {
         },
       ]
     );
+  };
+
+  const handleNextServiceDone = async (item) => {
+    try {
+      if (item.isNextServiceDone) return;
+
+      await updateService(item.id, { isNextServiceDone: true });
+
+      setServices(prev => prev.map(s => s.id === item.id ? { ...s, isNextServiceDone: true } : s));
+
+      navigation.navigate('AddService', { vehicleId: item.vehicleId });
+    } catch (error) {
+      console.error('Error updating service status:', error);
+      Alert.alert('Error', 'Gagal memperbarui status servis');
+    }
   };
 
   // Create a vehicle map for O(1) lookups instead of O(n) find operations
@@ -247,13 +262,19 @@ export default function ServicesScreen() {
     const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
     const needsService = kmRemaining !== null && kmRemaining <= 0;
 
-    // Hitung progress width (100 = full) berdasarkan estimasi interval per kendaraan
     const vehicle = vehicleMap.get(item.vehicleId);
-    const interval = vehicle?.type === 'motor' ? 2000 : 10000;
 
-    // Logika bar diperbarui: makin sedikit sisanya, makin panjang bar hijaunya (mendekati 100%)
+    // Logika bar diperbarui: menggunakan interval sebenarnya dari selisih KM servis jika tersedia
     let progressWidth = 0;
     if (kmRemaining !== null) {
+      // Default interval sebagai fallback
+      let interval = vehicle?.type === 'motor' ? 2000 : 10000;
+
+      // Jika ada data KM servis sebelumnya dan servis berikutnya, gunakan jarak aslinya sebagai interval penuh
+      if (item.nextServiceKm && item.serviceKm && (item.nextServiceKm > item.serviceKm)) {
+        interval = item.nextServiceKm - item.serviceKm;
+      }
+
       const percentageCompleted = ((interval - kmRemaining) / interval) * 100;
       progressWidth = Math.max(0, Math.min(100, percentageCompleted));
     }
@@ -261,8 +282,38 @@ export default function ServicesScreen() {
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
         <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0 }}>{item.serviceType}</Title>
-          <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0, flex: 1 }} numberOfLines={2}>{item.serviceType}</Title>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {item.isNextServiceDone ? (
+              <View
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  borderWidth: 1,
+                  borderColor: '#ffffff',
+                  borderRadius: 16,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  marginRight: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center'
+                }}
+              >
+                <MaterialCommunityIcons name="check" size={14} color="#ffffff" style={{ marginRight: 4 }} />
+                <Text style={{ color: '#ffffff', fontSize: 10, fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Terlaksana
+                </Text>
+              </View>
+            ) : (
+              <IconButton
+                icon="check-circle-outline"
+                size={22}
+                iconColor="#ffffff"
+                style={{ margin: 0, marginRight: 4 }}
+                onPress={() => handleNextServiceDone(item)}
+              />
+            )}
+            <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+          </View>
         </View>
         <Card.Content style={{ paddingTop: 16 }}>
           <View style={styles.cardContent}>

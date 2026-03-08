@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { FAB, Card, Title, Paragraph, Chip, IconButton, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { getParts, deletePart, getVehicles } from '../services/firebaseService';
+import { getParts, deletePart, getVehicles, updatePart } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
 import { useAuth } from '../contexts/AuthContext';
@@ -83,6 +83,19 @@ export default function PartsScreen() {
         },
       ]
     );
+  };
+
+  const handlePartReplaced = async (item) => {
+    try {
+      if (item.isReplaced) return;
+
+      await updatePart(item.id, { isReplaced: true });
+
+      setParts(prev => prev.map(p => p.id === item.id ? { ...p, isReplaced: true } : p));
+    } catch (error) {
+      console.error('Error updating part status:', error);
+      Alert.alert('Error', 'Gagal memperbarui status part');
+    }
   };
 
   // Create a vehicle map for O(1) lookups
@@ -264,8 +277,38 @@ export default function PartsScreen() {
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
         <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0 }}>{item.name}</Title>
-          <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+          <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0, flex: 1 }} numberOfLines={2}>{item.name}</Title>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {item.isReplaced ? (
+              <View
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  borderWidth: 1,
+                  borderColor: '#ffffff',
+                  borderRadius: 16,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  marginRight: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center'
+                }}
+              >
+                <MaterialCommunityIcons name="check" size={14} color="#ffffff" style={{ marginRight: 4 }} />
+                <Text style={{ color: '#ffffff', fontSize: 10, fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Part Sudah Diganti
+                </Text>
+              </View>
+            ) : (
+              <IconButton
+                icon="check-circle-outline"
+                size={22}
+                iconColor="#ffffff"
+                style={{ margin: 0, marginRight: 4 }}
+                onPress={() => handlePartReplaced(item)}
+              />
+            )}
+            <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
+          </View>
         </View>
         <Card.Content style={{ paddingTop: 16 }}>
           <View style={styles.cardContent}>
