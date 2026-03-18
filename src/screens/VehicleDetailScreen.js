@@ -117,7 +117,10 @@ export default function VehicleDetailScreen() {
                     style={[styles.kmInput, { backgroundColor: theme.colors.surface }]}
                   />
                   <Button onPress={handleUpdateKm} compact>Simpan</Button>
-                  <Button onPress={() => setEditingKm(false)} compact>Batal</Button>
+                  <Button onPress={() => {
+                      setNewKm(vehicle?.currentMileage ? formatNumberWithDots(vehicle.currentMileage.toString()) : '');
+                      setEditingKm(false);
+                    }} compact>Batal</Button>
                 </View>
               )}
             </View>

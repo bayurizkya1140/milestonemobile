@@ -202,9 +202,21 @@ function MainApp() {
         component={VehiclesStack}
         options={{ unmountOnBlur: true }}
       />
-      <Tab.Screen name="Services" component={ServicesStack} />
-      <Tab.Screen name="Parts" component={PartsStack} />
-      <Tab.Screen name="Taxes" component={TaxesStack} />
+      <Tab.Screen
+        name="Services"
+        component={ServicesStack}
+        options={{ unmountOnBlur: true }}
+      />
+      <Tab.Screen
+        name="Parts"
+        component={PartsStack}
+        options={{ unmountOnBlur: true }}
+      />
+      <Tab.Screen
+        name="Taxes"
+        component={TaxesStack}
+        options={{ unmountOnBlur: true }}
+      />
     </Tab.Navigator>
   );
 }

@@ -136,11 +136,13 @@ export default function ServicesScreen() {
     return item.nextServiceKm - currentKm;
   }, [getCurrentKm]);
 
-  // Get service count per vehicle
+  // Get service count per vehicle (only count services that are not yet done)
   const serviceCountMap = useMemo(() => {
     const map = new Map();
     services.forEach(s => {
-      map.set(s.vehicleId, (map.get(s.vehicleId) || 0) + 1);
+      if (!s.isNextServiceDone) {
+        map.set(s.vehicleId, (map.get(s.vehicleId) || 0) + 1);
+      }
     });
     return map;
   }, [services]);

@@ -124,11 +124,13 @@ export default function PartsScreen() {
     return parts.filter(p => p.vehicleId === selectedVehicleId);
   }, [parts, selectedVehicleId]);
 
-  // Get part count per vehicle
+  // Get part count per vehicle (only count parts that are not yet replaced)
   const partCountMap = useMemo(() => {
     const map = new Map();
     parts.forEach(p => {
-      map.set(p.vehicleId, (map.get(p.vehicleId) || 0) + 1);
+      if (!p.isReplaced) {
+        map.set(p.vehicleId, (map.get(p.vehicleId) || 0) + 1);
+      }
     });
     return map;
   }, [parts]);

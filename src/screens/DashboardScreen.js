@@ -218,7 +218,11 @@ export default function DashboardScreen() {
       </TouchableOpacity>
 
       <Portal>
-        <Modal visible={showKmModal} onDismiss={() => setShowKmModal(false)} contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
+        <Modal visible={showKmModal} onDismiss={() => {
+            setShowKmModal(false);
+            setNewKm('');
+            setSelectedVehicleId('');
+          }} contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
           <Title style={{ color: theme.colors.onSurface, marginBottom: 16, fontFamily: 'SpaceGrotesk_700Bold' }}>Update Kilometer</Title>
 
           <View style={{ borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, marginBottom: 16 }}>
@@ -259,7 +263,11 @@ export default function DashboardScreen() {
           />
 
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-            <Button onPress={() => setShowKmModal(false)} style={{ marginRight: 8 }}>Batal</Button>
+            <Button onPress={() => {
+              setShowKmModal(false);
+              setNewKm('');
+              setSelectedVehicleId('');
+            }} style={{ marginRight: 8 }}>Batal</Button>
             <Button mode="contained" onPress={handleUpdateKm} loading={updatingKm} style={{ borderRadius: 8 }}>Simpan</Button>
           </View>
         </Modal>
