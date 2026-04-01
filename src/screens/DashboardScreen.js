@@ -94,8 +94,10 @@ export default function DashboardScreen() {
       // Deklarasi now
       const now = new Date();
 
-      // Filter upcoming services (sisa kilometer <= 1000 ATAU sudah lewat)
+      // Filter upcoming services (sisa kilometer <= 1000 ATAU sudah lewat, KECUALI yang sudah terlaksana)
       const upcoming = servicesData.filter(service => {
+        // Skip servis yang sudah terlaksana
+        if (service.isNextServiceDone) return false;
         if (!service.vehicleId || service.nextServiceKm == null) return false;
         const vehicle = vehiclesData.find(v => v.id === service.vehicleId);
         if (!vehicle || vehicle.currentMileage == null) return false;
@@ -105,8 +107,11 @@ export default function DashboardScreen() {
       });
       setUpcomingServices(upcoming.slice(0, 5));
 
-      // Filter parts that need replacement (sisa kilometer <= 1000 ATAU sudah lewat ATAU needsReplacement = true)
+      // Filter parts that need replacement (sisa kilometer <= 1000 ATAU sudah lewat ATAU needsReplacement = true, KECUALI yang sudah diganti)
       const partsNeedingReplacement = partsData.filter(part => {
+        // Skip part yang sudah diganti
+        if (part.isReplaced) return false;
+
         // Part yang ditandai perlu diganti (dari switch)
         if (part.needsReplacement === true) return true;
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert, Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FAB, Card, Title, Paragraph, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getTaxes, deleteTax, updateTax, getVehicles } from '../services/firebaseService';
@@ -123,9 +124,28 @@ export default function TaxesScreen() {
       <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
         <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0 }}>{item.type}</Title>
-          <View style={{ flexDirection: 'row' }}>
-            {!item.isPaid && (
-              <IconButton icon="check-circle" size={20} iconColor="#4caf50" style={{ margin: 0, marginRight: 8 }} onPress={() => handleMarkAsPaid(item.id)} />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {item.isPaid ? (
+              <View
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  borderWidth: 1,
+                  borderColor: '#ffffff',
+                  borderRadius: 16,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  marginRight: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center'
+                }}
+              >
+                <MaterialCommunityIcons name="check" size={14} color="#ffffff" style={{ marginRight: 4 }} />
+                <Text style={{ color: '#ffffff', fontSize: 10, fontFamily: 'SpaceGrotesk_500Medium' }}>
+                  Sudah Dibayar
+                </Text>
+              </View>
+            ) : (
+              <IconButton icon="check-circle-outline" size={22} iconColor="#ffffff" style={{ margin: 0, marginRight: 4 }} onPress={() => handleMarkAsPaid(item.id)} />
             )}
             <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
           </View>
