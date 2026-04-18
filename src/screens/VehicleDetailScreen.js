@@ -135,6 +135,7 @@ export default function VehicleDetailScreen() {
         </Card.Content>
       </Card>
 
+      {/* ============ SERVIS SECTION ============ */}
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
@@ -147,64 +148,119 @@ export default function VehicleDetailScreen() {
               Tambah
             </Button>
           </View>
-          {services.length === 0 ? (
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada servis</Paragraph>
-          ) : (
-            services.slice(0, 3).map((service) => {
-              // Ambil kilometer saat servis, kilometer servis berikutnya, dan sisa kilometer
-              const kmSaatServis = service.kilometer || null;
-              const nextServiceKm = service.nextServiceKm || null;
-              const currentKm = vehicle.currentMileage || null;
-              const kmRemaining = (nextServiceKm && currentKm !== null) ? (nextServiceKm - currentKm) : null;
-              const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
-              const needsService = kmRemaining !== null && kmRemaining <= 0;
-              return (
-                <View key={service.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
-                  <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{service.serviceType}</Paragraph>
-                  <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                    {service.serviceDate 
-                      ? format(service.serviceDate.toDate(), 'dd MMM yyyy', { locale: id })
-                      : 'Tanggal tidak ditentukan'}
-                  </Paragraph>
-                  {kmSaatServis !== null && (
-                    <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                      Kilometer saat servis: {kmSaatServis.toLocaleString('id-ID')} km
-                    </Paragraph>
-                  )}
-                  {nextServiceKm !== null && (
-                    <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                      Kilometer servis berikutnya: {nextServiceKm.toLocaleString('id-ID')} km
-                    </Paragraph>
-                  )}
-                  {kmRemaining !== null && (
-                    <View style={{marginTop: 4}}>
-                      {needsService ? (
-                        <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                          Sudah Lewat Servis
-                        </Chip>
-                      ) : urgent ? (
-                        <Chip icon="alert" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                          Kurang dari 300 km sebelum servis berikutnya!
-                        </Chip>
-                      ) : (
-                        <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
-                          Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                        </Chip>
+          {(() => {
+            const activeServices = services.filter(s => !s.isNextServiceDone);
+            return activeServices.length === 0 ? (
+              <View style={[styles.emptyState, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+                  Belum ada servis yang perlu dilakukan
+                </Paragraph>
+              </View>
+            ) : (
+              activeServices.slice(0, 3).map((service) => {
+                const kmSaatServis = service.kilometer || null;
+                const nextServiceKm = service.nextServiceKm || null;
+                const currentKm = vehicle.currentMileage || null;
+                const kmRemaining = (nextServiceKm && currentKm !== null) ? (nextServiceKm - currentKm) : null;
+                const urgent = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 300;
+                const needsService = kmRemaining !== null && kmRemaining <= 0;
+
+                // Progress bar calculation
+                let progressWidth = 0;
+                if (kmRemaining !== null) {
+                  let interval = vehicle?.type === 'motor' ? 2000 : 10000;
+                  if (nextServiceKm && service.serviceKm && (nextServiceKm > service.serviceKm)) {
+                    interval = nextServiceKm - service.serviceKm;
+                  }
+                  const pct = ((interval - kmRemaining) / interval) * 100;
+                  progressWidth = Math.max(0, Math.min(100, pct));
+                }
+
+                const accentColor = needsService ? '#C62828' : urgent ? '#E65100' : theme.colors.primary;
+
+                return (
+                  <View key={service.id} style={[styles.miniCard, { backgroundColor: theme.colors.surfaceVariant, borderRadius: theme.roundness }]}>
+                    {/* Header */}
+                    <View style={[styles.miniCardHeader, { backgroundColor: accentColor, borderTopLeftRadius: theme.roundness, borderTopRightRadius: theme.roundness }]}>
+                      <Paragraph style={styles.miniCardTitle}>{service.serviceType}</Paragraph>
+                      {needsService && (
+                        <View style={styles.statusBadge}>
+                          <Paragraph style={styles.statusBadgeText}>⚠ Terlambat</Paragraph>
+                        </View>
+                      )}
+                      {urgent && !needsService && (
+                        <View style={[styles.statusBadge, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
+                          <Paragraph style={styles.statusBadgeText}>⚡ Segera</Paragraph>
+                        </View>
                       )}
                     </View>
-                  )}
-                  {service.nextServiceDate && (
-                    <Paragraph style={[styles.nextService, { color: theme.colors.onSurfaceVariant }]}>
-                      Servis berikutnya: {getFormattedDate(service.nextServiceDate) || 'Tanggal tidak ditentukan'}
-                    </Paragraph>
-                  )}
-                </View>
-              );
-            })
-          )}
+
+                    {/* Body */}
+                    <View style={styles.miniCardBody}>
+                      <View style={styles.infoRow}>
+                        <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📅  Tanggal servis</Paragraph>
+                        <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                          {service.serviceDate
+                            ? format(service.serviceDate.toDate(), 'dd MMM yyyy', { locale: id })
+                            : '-'}
+                        </Paragraph>
+                      </View>
+
+                      {kmSaatServis !== null && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🔧  KM saat servis</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                            {kmSaatServis.toLocaleString('id-ID')} km
+                          </Paragraph>
+                        </View>
+                      )}
+
+                      {nextServiceKm !== null && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🎯  Servis berikutnya</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                            {nextServiceKm.toLocaleString('id-ID')} km
+                          </Paragraph>
+                        </View>
+                      )}
+
+                      {service.nextServiceDate && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📆  Jadwal berikutnya</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                            {getFormattedDate(service.nextServiceDate) || '-'}
+                          </Paragraph>
+                        </View>
+                      )}
+
+                      {/* Progress bar */}
+                      {kmRemaining !== null && (
+                        <View style={styles.progressSection}>
+                          <View style={styles.progressLabelRow}>
+                            <Paragraph style={[styles.progressLabel, { color: accentColor }]}>
+                              {needsService
+                                ? `Lewat ${Math.abs(kmRemaining).toLocaleString('id-ID')} km`
+                                : `Sisa ${kmRemaining.toLocaleString('id-ID')} km`}
+                            </Paragraph>
+                            <Paragraph style={[styles.progressPercent, { color: theme.colors.onSurfaceVariant }]}>
+                              {Math.min(100, Math.round(progressWidth))}%
+                            </Paragraph>
+                          </View>
+                          <View style={[styles.progressTrack, { backgroundColor: theme.colors.outline }]}>
+                            <View style={[styles.progressFill, { width: `${progressWidth}%`, backgroundColor: accentColor }]} />
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                );
+              })
+            );
+          })()}
         </Card.Content>
       </Card>
 
+      {/* ============ PARTS SECTION ============ */}
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
@@ -217,67 +273,116 @@ export default function VehicleDetailScreen() {
               Tambah
             </Button>
           </View>
-          {parts.length === 0 ? (
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada parts</Paragraph>
-          ) : (
-            parts.slice(0, 3).map((part) => {
-              let kmRemaining = null;
-              if (
-                vehicle.currentMileage != null &&
-                part.replacementKm != null
-              ) {
-                kmRemaining = part.replacementKm - vehicle.currentMileage;
-              }
-              
-              // Cek apakah part ditandai perlu diganti (dari switch)
-              const isNeedsReplacement = part.needsReplacement === true;
-              
-              return (
-                <View key={part.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
-                  <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{part.name}</Paragraph>
-                  
-                  {/* Tampilkan peringatan untuk part yang perlu diganti */}
-                  {isNeedsReplacement ? (
-                    <View>
-                      <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                        Part Perlu Diganti!
-                      </Chip>
-                      {part.notes && (
-                        <Paragraph style={[styles.partNotes, { color: theme.colors.onSurfaceVariant }]}>Catatan: {part.notes}</Paragraph>
+          {(() => {
+            const activeParts = parts.filter(p => !p.isReplaced);
+            return activeParts.length === 0 ? (
+              <View style={[styles.emptyState, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Paragraph style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+                  Belum ada parts yang perlu diganti
+                </Paragraph>
+              </View>
+            ) : (
+              activeParts.slice(0, 3).map((part) => {
+                let kmRemaining = null;
+                if (vehicle.currentMileage != null && part.replacementKm != null) {
+                  kmRemaining = part.replacementKm - vehicle.currentMileage;
+                }
+
+                const isNeedsReplacement = part.needsReplacement === true;
+                const needsReplace = isNeedsReplacement || (kmRemaining !== null && kmRemaining <= 0);
+                const urgentPart = kmRemaining !== null && kmRemaining > 0 && kmRemaining <= 1000;
+
+                // Progress calculation
+                let progressWidth = 0;
+                if (kmRemaining !== null) {
+                  let interval = 20000;
+                  if (part.replacementKm && part.installedKm) {
+                    interval = part.replacementKm - part.installedKm;
+                  } else if (vehicle?.type === 'motor') {
+                    interval = 10000;
+                  } else if (vehicle?.type === 'mobil') {
+                    interval = 40000;
+                  }
+                  const pct = ((interval - kmRemaining) / interval) * 100;
+                  progressWidth = Math.max(0, Math.min(100, pct));
+                }
+
+                const accentColor = needsReplace ? '#C62828' : urgentPart ? '#E65100' : theme.colors.primary;
+
+                return (
+                  <View key={part.id} style={[styles.miniCard, { backgroundColor: theme.colors.surfaceVariant, borderRadius: theme.roundness }]}>
+                    {/* Header */}
+                    <View style={[styles.miniCardHeader, { backgroundColor: accentColor, borderTopLeftRadius: theme.roundness, borderTopRightRadius: theme.roundness }]}>
+                      <Paragraph style={styles.miniCardTitle}>{part.name}</Paragraph>
+                      {needsReplace && (
+                        <View style={styles.statusBadge}>
+                          <Paragraph style={styles.statusBadgeText}>⚠ Ganti!</Paragraph>
+                        </View>
+                      )}
+                      {urgentPart && !needsReplace && (
+                        <View style={[styles.statusBadge, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
+                          <Paragraph style={styles.statusBadgeText}>⚡ Segera</Paragraph>
+                        </View>
                       )}
                     </View>
-                  ) : (
-                    <>
-                      <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                        Terpasang: {part.installedKm?.toLocaleString('id-ID')} km
-                      </Paragraph>
-                      <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                        Ganti pada: {part.replacementKm != null ? part.replacementKm.toLocaleString('id-ID') : ''} km
-                      </Paragraph>
-                      {kmRemaining != null && (
-                        kmRemaining <= 0 ? (
-                          <Chip icon="alert-circle" style={{ backgroundColor: theme.colors.urgentChipBg }} textStyle={{ color: theme.colors.urgentChipText }}>
-                            Perlu Diganti Segera
-                          </Chip>
-                        ) : kmRemaining <= 1000 ? (
-                          <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>
-                            Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                          </Chip>
-                        ) : (
-                          <Chip icon="information" style={{ backgroundColor: theme.colors.infoChipBg }} textStyle={{ color: theme.colors.infoChipText }}>
-                            Sisa: {kmRemaining.toLocaleString('id-ID')} km
-                          </Chip>
-                        )
+
+                    {/* Body */}
+                    <View style={styles.miniCardBody}>
+                      {part.installedKm != null && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🔩  Terpasang pada</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                            {part.installedKm.toLocaleString('id-ID')} km
+                          </Paragraph>
+                        </View>
                       )}
-                    </>
-                  )}
-                </View>
-              );
-            })
-          )}
+
+                      {part.replacementKm != null && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🎯  Ganti pada</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                            {part.replacementKm.toLocaleString('id-ID')} km
+                          </Paragraph>
+                        </View>
+                      )}
+
+                      {isNeedsReplacement && part.notes && (
+                        <View style={styles.infoRow}>
+                          <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📝  Catatan</Paragraph>
+                          <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface, flex: 1 }]} numberOfLines={2}>
+                            {part.notes}
+                          </Paragraph>
+                        </View>
+                      )}
+
+                      {/* Progress bar */}
+                      {kmRemaining !== null && (
+                        <View style={styles.progressSection}>
+                          <View style={styles.progressLabelRow}>
+                            <Paragraph style={[styles.progressLabel, { color: accentColor }]}>
+                              {kmRemaining <= 0
+                                ? `Lewat ${Math.abs(kmRemaining).toLocaleString('id-ID')} km`
+                                : `Sisa ${kmRemaining.toLocaleString('id-ID')} km`}
+                            </Paragraph>
+                            <Paragraph style={[styles.progressPercent, { color: theme.colors.onSurfaceVariant }]}>
+                              {Math.min(100, Math.round(progressWidth))}%
+                            </Paragraph>
+                          </View>
+                          <View style={[styles.progressTrack, { backgroundColor: theme.colors.outline }]}>
+                            <View style={[styles.progressFill, { width: `${progressWidth}%`, backgroundColor: accentColor }]} />
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                );
+              })
+            );
+          })()}
         </Card.Content>
       </Card>
 
+      {/* ============ PAJAK SECTION ============ */}
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Card.Content>
           <View style={styles.sectionHeader}>
@@ -291,10 +396,13 @@ export default function VehicleDetailScreen() {
             </Button>
           </View>
           {taxes.length === 0 ? (
-            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>Belum ada data pajak</Paragraph>
+            <View style={[styles.emptyState, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Paragraph style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+                Belum ada data pajak
+              </Paragraph>
+            </View>
           ) : (
             taxes.slice(0, 3).map((tax) => {
-              // Safe date parsing for tax
               const getTaxFormattedDate = (dateField) => {
                 try {
                   if (!dateField) return null;
@@ -304,20 +412,29 @@ export default function VehicleDetailScreen() {
                   return null;
                 }
               };
-              
+
+              const taxAccent = tax.isPaid ? theme.colors.primary : '#E65100';
+
               return (
-              <View key={tax.id} style={[styles.item, { borderBottomColor: theme.colors.outline }]}>
-                <Paragraph style={[styles.itemTitle, { color: theme.colors.onSurface }]}>{tax.type}</Paragraph>
-                <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                  Jatuh Tempo: {getTaxFormattedDate(tax.dueDate) || 'Tanggal tidak ditentukan'}
-                </Paragraph>
-                {tax.isPaid ? (
-                  <Chip icon="check-circle" style={{ backgroundColor: theme.colors.successChipBg }} textStyle={{ color: theme.colors.successChipText }}>Sudah Dibayar</Chip>
-                ) : (
-                  <Chip icon="alert" style={{ backgroundColor: theme.colors.warningChipBg }} textStyle={{ color: theme.colors.warningChipText }}>Belum Dibayar</Chip>
-                )}
-              </View>
-            );
+                <View key={tax.id} style={[styles.miniCard, { backgroundColor: theme.colors.surfaceVariant, borderRadius: theme.roundness }]}>
+                  <View style={[styles.miniCardHeader, { backgroundColor: taxAccent, borderTopLeftRadius: theme.roundness, borderTopRightRadius: theme.roundness }]}>
+                    <Paragraph style={styles.miniCardTitle}>{tax.type}</Paragraph>
+                    <View style={styles.statusBadge}>
+                      <Paragraph style={styles.statusBadgeText}>
+                        {tax.isPaid ? '✓ Lunas' : '⚠ Belum'}
+                      </Paragraph>
+                    </View>
+                  </View>
+                  <View style={styles.miniCardBody}>
+                    <View style={styles.infoRow}>
+                      <Paragraph style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📅  Jatuh Tempo</Paragraph>
+                      <Paragraph style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                        {getTaxFormattedDate(tax.dueDate) || 'Tanggal tidak ditentukan'}
+                      </Paragraph>
+                    </View>
+                  </View>
+                </View>
+              );
             })
           )}
         </Card.Content>
@@ -376,30 +493,92 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  item: {
+  // Empty state
+  emptyState: {
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  // Mini card styles
+  miniCard: {
     marginBottom: 12,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
+    overflow: 'hidden',
+    elevation: 1,
   },
-  itemTitle: {
+  miniCardHeader: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  miniCardTitle: {
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    marginBottom: 4,
+    fontSize: 15,
+    flex: 1,
   },
-  nextService: {
+  statusBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  statusBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  miniCardBody: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  // Info row styles
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+  infoLabel: {
+    fontSize: 13,
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  // Progress bar styles
+  progressSection: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  progressPercent: {
     fontSize: 12,
-    marginTop: 4,
   },
-  urgentChip: {
-    marginTop: 8,
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
   },
-  infoChip: {
-    marginTop: 8,
-  },
-  paidChip: {
-    marginTop: 8,
-  },
-  unpaidChip: {
-    marginTop: 8,
+  progressFill: {
+    height: 6,
+    borderRadius: 3,
   },
   partNotes: {
     marginTop: 8,

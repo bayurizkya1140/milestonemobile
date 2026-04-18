@@ -276,9 +276,11 @@ export default function PartsScreen() {
       progressWidth = Math.max(0, Math.min(100, percentageCompleted));
     }
 
+    const accentColor = needsReplacement ? '#C62828' : urgent ? '#E65100' : theme.colors.primary;
+
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
-        <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={{ backgroundColor: accentColor, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0, flex: 1 }} numberOfLines={2}>{item.name}</Title>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {item.isReplaced ? (
@@ -286,7 +288,7 @@ export default function PartsScreen() {
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.3)',
                   borderWidth: 1,
-                  borderColor: '#ffffff',
+                  borderColor: 'rgba(255,255,255,0.5)',
                   borderRadius: 16,
                   paddingHorizontal: 8,
                   paddingVertical: 4,
@@ -312,58 +314,69 @@ export default function PartsScreen() {
             <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
           </View>
         </View>
-        <Card.Content style={{ paddingTop: 16 }}>
-          <View style={styles.cardContent}>
+        <Card.Content style={{ paddingTop: 0, paddingHorizontal: 0 }}>
+          <View style={styles.cardBody}>
+            {/* Info rows */}
             {item.installedKm && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
-                Terpasang pada: <Text style={{ fontWeight: 'bold' }}>{item.installedKm.toLocaleString('id-ID')} km</Text>
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🔩  Terpasang pada</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>{item.installedKm.toLocaleString('id-ID')} km</Text>
+              </View>
             )}
             {item.installedAt && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
-                Tanggal: {(() => {
-                  try {
-                    const date = item.installedAt?.toDate ? item.installedAt.toDate() : new Date(item.installedAt);
-                    return format(date, 'dd MMM yyyy', { locale: id });
-                  } catch (e) {
-                    return 'Tanggal tidak valid';
-                  }
-                })()}
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📅  Tanggal pasang</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                  {(() => {
+                    try {
+                      const date = item.installedAt?.toDate ? item.installedAt.toDate() : new Date(item.installedAt);
+                      return format(date, 'dd MMM yyyy', { locale: id });
+                    } catch (e) {
+                      return 'Tanggal tidak valid';
+                    }
+                  })()}
+                </Text>
+              </View>
             )}
             {item.replacementKm && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
-                Ganti pada: <Text style={{ fontWeight: 'bold' }}>{item.replacementKm.toLocaleString('id-ID')} km</Text>
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🎯  Ganti pada</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>{item.replacementKm.toLocaleString('id-ID')} km</Text>
+              </View>
+            )}
+            {item.notes && (
+              <View style={[styles.infoRow, { alignItems: 'flex-start' }]}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📝  Catatan</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurfaceVariant, fontStyle: 'italic', fontWeight: 'normal', flex: 1, textAlign: 'right' }]} numberOfLines={2}>{item.notes}</Text>
+              </View>
             )}
 
-            <View style={styles.statusRow}>
-              {item.needsReplacement === true ? (
-                <Chip icon="alert-circle" style={{ backgroundColor: '#FAD4D4', borderRadius: 16 }} textStyle={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium' }}>
-                  Perlu Diganti Segera
-                </Chip>
-              ) : kmRemaining !== null ? (
-                needsReplacement ? (
-                  <Chip icon="alert-circle" style={{ backgroundColor: '#FAD4D4', borderRadius: 16 }} textStyle={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium' }}>
-                    Sudah Lewat Penggantian
-                  </Chip>
-                ) : urgent ? (
-                  <Chip icon="alert" style={{ backgroundColor: '#FFF3E0', borderRadius: 16 }} textStyle={{ color: '#E65100', fontFamily: 'SpaceGrotesk_500Medium' }}>
-                    Hanya {kmRemaining.toLocaleString('id-ID')} km lagi
-                  </Chip>
-                ) : (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F1EA', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, width: '100%' }}>
-                    <Text style={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium', marginRight: 12 }}>Sisa: {kmRemaining.toLocaleString('id-ID')} km</Text>
-                    <View style={{ height: 8, flex: 1, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' }}>
-                      <View style={{ height: 8, width: `${progressWidth}%`, backgroundColor: theme.colors.primary, borderRadius: 4 }} />
-                    </View>
-                  </View>
-                )
-              ) : null}
-            </View>
+            {/* Progress bar */}
+            {kmRemaining !== null && (
+              <View style={styles.progressSection}>
+                <View style={styles.progressLabelRow}>
+                  <Text style={[styles.progressLabel, { color: accentColor, fontFamily: 'SpaceGrotesk_500Medium' }]}>
+                    {needsReplacement
+                      ? `Lewat ${Math.abs(kmRemaining).toLocaleString('id-ID')} km`
+                      : `Sisa ${kmRemaining.toLocaleString('id-ID')} km`}
+                  </Text>
+                  <Text style={[styles.progressPercent, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_400Regular' }]}>
+                    {Math.min(100, Math.round(progressWidth))}%
+                  </Text>
+                </View>
+                <View style={[styles.progressTrack, { backgroundColor: theme.colors.outline }]}>
+                  <View style={[styles.progressFill, { width: `${progressWidth}%`, backgroundColor: accentColor }]} />
+                </View>
+              </View>
+            )}
 
-            {item.notes && (
-              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
+            {/* Manual needs replacement alert */}
+            {item.needsReplacement === true && kmRemaining === null && (
+              <View style={[styles.progressSection, { borderTopWidth: 0 }]}>
+                <View style={{ backgroundColor: '#FAD4D4', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium', fontSize: 13 }}>⚠  Perlu Diganti Segera</Text>
+                </View>
+              </View>
             )}
           </View>
         </Card.Content>
@@ -512,15 +525,52 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 2,
   },
-  cardContent: {
-    flex: 1,
+  cardBody: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  statusRow: {
-    marginTop: 8,
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
   },
-  notes: {
-    marginTop: 8,
-    fontStyle: 'italic',
+  infoLabel: {
+    fontSize: 13,
+    fontFamily: 'SpaceGrotesk_400Regular',
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    fontFamily: 'SpaceGrotesk_500Medium',
+  },
+  progressSection: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  progressPercent: {
+    fontSize: 12,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: 6,
+    borderRadius: 3,
   },
   fab: {
     position: 'absolute',

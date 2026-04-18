@@ -20,18 +20,18 @@ export default function SettingsScreen() {
             Tampilan
           </Title>
           <Divider style={{ marginBottom: 16, backgroundColor: theme.colors.outline }} />
-          
+
           <Text style={[styles.label, { color: theme.colors.onSurface }]}>Tema Aplikasi</Text>
-          
+
           <RadioButton.Group onValueChange={setTheme} value={themePreference}>
             {themeOptions.map((option) => (
-              <View 
-                key={option.value} 
+              <View
+                key={option.value}
                 style={[
                   styles.radioItem,
-                  { 
-                    backgroundColor: themePreference === option.value 
-                      ? theme.colors.surfaceVariant 
+                  {
+                    backgroundColor: themePreference === option.value
+                      ? theme.colors.surfaceVariant
                       : 'transparent',
                     borderColor: theme.colors.outline,
                   }
@@ -58,12 +58,12 @@ export default function SettingsScreen() {
             Tentang Aplikasi
           </Title>
           <Divider style={{ marginBottom: 16, backgroundColor: theme.colors.outline }} />
-          
+
           <View style={styles.aboutItem}>
             <Text style={[styles.aboutLabel, { color: theme.colors.onSurfaceVariant }]}>Versi</Text>
-            <Text style={[styles.aboutValue, { color: theme.colors.onSurface }]}>1.1.0</Text>
+            <Text style={[styles.aboutValue, { color: theme.colors.onSurface }]}>1.5.0</Text>
           </View>
-          
+
           <View style={styles.aboutItem}>
             <Text style={[styles.aboutLabel, { color: theme.colors.onSurfaceVariant }]}>Nama Aplikasi</Text>
             <Text style={[styles.aboutValue, { color: theme.colors.onSurface }]}>Milestone Mobile</Text>

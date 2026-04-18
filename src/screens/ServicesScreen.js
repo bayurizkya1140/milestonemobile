@@ -281,9 +281,11 @@ export default function ServicesScreen() {
       progressWidth = Math.max(0, Math.min(100, percentageCompleted));
     }
 
+    const accentColor = needsService ? '#C62828' : urgent ? '#E65100' : theme.colors.primary;
+
     return (
       <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
-        <View style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={{ backgroundColor: accentColor, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0, flex: 1 }} numberOfLines={2}>{item.serviceType}</Title>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {item.isNextServiceDone ? (
@@ -291,7 +293,7 @@ export default function ServicesScreen() {
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.3)',
                   borderWidth: 1,
-                  borderColor: '#ffffff',
+                  borderColor: 'rgba(255,255,255,0.5)',
                   borderRadius: 16,
                   paddingHorizontal: 8,
                   paddingVertical: 4,
@@ -317,62 +319,72 @@ export default function ServicesScreen() {
             <IconButton icon="delete" size={20} iconColor="#ffffff" style={{ margin: 0 }} onPress={() => handleDelete(item.id)} />
           </View>
         </View>
-        <Card.Content style={{ paddingTop: 16 }}>
-          <View style={styles.cardContent}>
+        <Card.Content style={{ paddingTop: 0, paddingHorizontal: 0 }}>
+          <View style={styles.cardBody}>
+            {/* Info rows */}
             {item.serviceDate && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant, marginTop: 0 }}>
-                Tanggal servis: {(() => {
-                  try {
-                    const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
-                    return format(date, 'dd MMM yyyy', { locale: id });
-                  } catch (e) {
-                    return 'Tanggal tidak valid';
-                  }
-                })()}
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📅  Tanggal servis</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                  {(() => {
+                    try {
+                      const date = item.serviceDate?.toDate ? item.serviceDate.toDate() : new Date(item.serviceDate);
+                      return format(date, 'dd MMM yyyy', { locale: id });
+                    } catch (e) {
+                      return 'Tanggal tidak valid';
+                    }
+                  })()}
+                </Text>
+              </View>
             )}
             {item.serviceKm && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                KM saat servis: <Text style={{ fontWeight: 'bold' }}>{item.serviceKm.toLocaleString('id-ID')} km</Text>
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🔧  KM saat servis</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>{item.serviceKm.toLocaleString('id-ID')} km</Text>
+              </View>
             )}
             {item.cost && (
-              <Paragraph style={[styles.cost, { color: theme.colors.onSurface }]}>
-                Biaya: <Text style={{ fontWeight: 'bold' }}>Rp {item.cost.toLocaleString('id-ID')}</Text>
-              </Paragraph>
-            )}
-            {item.notes && (
-              <Paragraph style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>{item.notes}</Paragraph>
-            )}
-            {kmRemaining !== null && (
-              <View style={styles.statusRow}>
-                {needsService ? (
-                  <Chip icon="alert-circle" style={{ backgroundColor: '#FAD4D4', borderRadius: 16 }} textStyle={{ color: '#D32F2F', fontFamily: 'SpaceGrotesk_500Medium' }}>
-                    Sudah Lewat Servis
-                  </Chip>
-                ) : urgent ? (
-                  <Chip icon="alert" style={{ backgroundColor: '#FFF3E0', borderRadius: 16 }} textStyle={{ color: '#E65100', fontFamily: 'SpaceGrotesk_500Medium' }}>
-                    Hanya {kmRemaining.toLocaleString('id-ID')} km lagi
-                  </Chip>
-                ) : (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F1EA', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, width: '100%' }}>
-                    <Text style={{ color: theme.colors.primary, fontFamily: 'SpaceGrotesk_500Medium', marginRight: 12 }}>Sisa: {kmRemaining.toLocaleString('id-ID')} km</Text>
-                    <View style={{ height: 8, flex: 1, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' }}>
-                      <View style={{ height: 8, width: `${progressWidth}%`, backgroundColor: theme.colors.primary, borderRadius: 4 }} />
-                    </View>
-                  </View>
-                )}
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>💰  Biaya</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>Rp {item.cost.toLocaleString('id-ID')}</Text>
               </View>
             )}
             {item.nextServiceKm && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                Kilometer servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceKm.toLocaleString('id-ID')} km</Text>
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🎯  Servis berikutnya</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]}>{item.nextServiceKm.toLocaleString('id-ID')} km</Text>
+              </View>
             )}
             {item.nextServiceType && (
-              <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>
-                Jenis servis berikutnya: <Text style={{ fontWeight: 'bold' }}>{item.nextServiceType}</Text>
-              </Paragraph>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>🔄  Jenis berikutnya</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurface }]} numberOfLines={1}>{item.nextServiceType}</Text>
+              </View>
+            )}
+            {item.notes && (
+              <View style={[styles.infoRow, { alignItems: 'flex-start' }]}>
+                <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>📝  Catatan</Text>
+                <Text style={[styles.infoValue, { color: theme.colors.onSurfaceVariant, fontStyle: 'italic', fontWeight: 'normal', flex: 1, textAlign: 'right' }]} numberOfLines={2}>{item.notes}</Text>
+              </View>
+            )}
+
+            {/* Progress bar */}
+            {kmRemaining !== null && (
+              <View style={styles.progressSection}>
+                <View style={styles.progressLabelRow}>
+                  <Text style={[styles.progressLabel, { color: accentColor, fontFamily: 'SpaceGrotesk_500Medium' }]}>
+                    {needsService
+                      ? `Lewat ${Math.abs(kmRemaining).toLocaleString('id-ID')} km`
+                      : `Sisa ${kmRemaining.toLocaleString('id-ID')} km`}
+                  </Text>
+                  <Text style={[styles.progressPercent, { color: theme.colors.onSurfaceVariant, fontFamily: 'SpaceGrotesk_400Regular' }]}>
+                    {Math.min(100, Math.round(progressWidth))}%
+                  </Text>
+                </View>
+                <View style={[styles.progressTrack, { backgroundColor: theme.colors.outline }]}>
+                  <View style={[styles.progressFill, { width: `${progressWidth}%`, backgroundColor: accentColor }]} />
+                </View>
+              </View>
             )}
           </View>
         </Card.Content>
@@ -521,18 +533,52 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 2,
   },
-  cardContent: {
-    flex: 1,
+  cardBody: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  statusRow: {
-    marginTop: 4,
-    marginBottom: 4,
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
   },
-  cost: {
+  infoLabel: {
+    fontSize: 13,
+    fontFamily: 'SpaceGrotesk_400Regular',
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    fontFamily: 'SpaceGrotesk_500Medium',
+  },
+  progressSection: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressLabel: {
+    fontSize: 13,
     fontWeight: 'bold',
   },
-  notes: {
-    fontStyle: 'italic',
+  progressPercent: {
+    fontSize: 12,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: 6,
+    borderRadius: 3,
   },
   fab: {
     position: 'absolute',
