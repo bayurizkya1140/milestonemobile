@@ -287,7 +287,7 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 key={service.id}
                 activeOpacity={0.7}
-                onPress={() => navigation.navigate('Services')}
+                onPress={() => navigation.navigate('Services', { screen: 'ServicesList', params: { vehicleId: service.vehicleId } })}
                 style={[styles.alertCard, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness }]}
               >
                 <View style={[styles.alertAccent, { backgroundColor: isOverdue ? '#C62828' : '#E65100' }]} />
@@ -334,7 +334,7 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 key={part.id}
                 activeOpacity={0.7}
-                onPress={() => navigation.navigate('Parts')}
+                onPress={() => navigation.navigate('Parts', { screen: 'PartsList', params: { vehicleId: part.vehicleId } })}
                 style={[styles.alertCard, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness }]}
               >
                 <View style={[styles.alertAccent, { backgroundColor: '#C62828' }]} />

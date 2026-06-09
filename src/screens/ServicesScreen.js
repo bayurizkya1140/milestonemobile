@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Alert, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { FAB, Card, Title, Paragraph, Chip, IconButton, ActivityIndicator } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getServices, deleteService, getVehicles, updateService } from '../services/firebaseService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale/id';
@@ -11,13 +11,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function ServicesScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
   const [services, setServices] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  const vehicleScrollRef = useRef(null);
 
 
   useEffect(() => {
@@ -39,14 +41,23 @@ export default function ServicesScreen() {
       setServices(servicesData);
       setVehicles(vehiclesData);
 
-      // Auto-select first vehicle if none selected or previously selected vehicle no longer exists
+      // Auto-select vehicle from route param, or keep previous, or default to first
       if (vehiclesData.length > 0) {
+        const paramVehicleId = route.params?.vehicleId;
         setSelectedVehicleId(prev => {
+          // If a vehicleId was passed via navigation params, use it
+          if (paramVehicleId && vehiclesData.find(v => v.id === paramVehicleId)) {
+            return paramVehicleId;
+          }
           if (!prev || !vehiclesData.find(v => v.id === prev)) {
             return vehiclesData[0].id;
           }
           return prev;
         });
+        // Clear the param after using it so it doesn't persist on subsequent focus
+        if (paramVehicleId) {
+          navigation.setParams({ vehicleId: undefined });
+        }
       } else {
         setSelectedVehicleId(null);
       }
@@ -147,6 +158,21 @@ export default function ServicesScreen() {
     return map;
   }, [services]);
 
+  // Auto-scroll vehicle selector to show selected vehicle
+  useEffect(() => {
+    if (selectedVehicleId && vehicles.length > 0 && vehicleScrollRef.current) {
+      const index = vehicles.findIndex(v => v.id === selectedVehicleId);
+      if (index > 0) {
+        const CARD_WIDTH = 140;
+        const GAP = 10;
+        const scrollX = index * (CARD_WIDTH + GAP);
+        setTimeout(() => {
+          vehicleScrollRef.current?.scrollTo({ x: scrollX, animated: true });
+        }, 100);
+      }
+    }
+  }, [selectedVehicleId, vehicles]);
+
   const renderVehicleSelector = () => {
     if (vehicles.length === 0) return null;
 
@@ -156,6 +182,7 @@ export default function ServicesScreen() {
           Pilih Kendaraan
         </Text>
         <ScrollView
+          ref={vehicleScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.vehicleScrollContent}
@@ -281,10 +308,11 @@ export default function ServicesScreen() {
       progressWidth = Math.max(0, Math.min(100, percentageCompleted));
     }
 
-    const accentColor = needsService ? '#C62828' : urgent ? '#E65100' : theme.colors.primary;
+    const isDone = item.isNextServiceDone === true;
+    const accentColor = isDone ? '#9E9E9E' : needsService ? '#C62828' : urgent ? '#E65100' : theme.colors.primary;
 
     return (
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness }]}>
+      <Card style={[styles.card, { backgroundColor: isDone ? (isDark ? '#2A2A2A' : '#F0F0F0') : theme.colors.surface, overflow: 'hidden', borderRadius: theme.roundness, opacity: isDone ? 0.85 : 1 }]}>
         <View style={{ backgroundColor: accentColor, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title style={{ color: '#ffffff', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18, marginVertical: 0, flex: 1 }} numberOfLines={2}>{item.serviceType}</Title>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -368,8 +396,8 @@ export default function ServicesScreen() {
               </View>
             )}
 
-            {/* Progress bar */}
-            {kmRemaining !== null && (
+            {/* Progress bar - hidden when service is done */}
+            {!isDone && kmRemaining !== null && (
               <View style={styles.progressSection}>
                 <View style={styles.progressLabelRow}>
                   <Text style={[styles.progressLabel, { color: accentColor, fontFamily: 'SpaceGrotesk_500Medium' }]}>
